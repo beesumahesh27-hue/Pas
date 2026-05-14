@@ -1,0 +1,121 @@
+import React from 'react';
+import {
+  Box,
+  IconButton,
+  Link,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import MoreVertIcon   from '@mui/icons-material/MoreVert';
+
+export const VM_COLUMNS = [
+  { key: 'cloudPod',    label: 'Cloud POD' },
+  { key: 'vmName',      label: 'VM Name' },
+  { key: 'vmUuid',      label: 'VM UUID' },
+  { key: 'powerState',  label: 'Power\nState', wrap: true },
+  { key: 'primaryIp',   label: 'Primary IP' },
+  { key: 'guestOs',     label: 'Guest OS' },
+  { key: 'minCpu',      label: 'Min CPU' },
+  { key: 'maxCpu',      label: 'Max CPU' },
+  { key: 'minRam',      label: 'Min RAM (GB)' },
+  { key: 'maxRam',      label: 'Max RAM (GB)' },
+  { key: 'totalDisk',   label: 'Total Disk Size (GB)' },
+  { key: 'totalUptime', label: 'Total Uptime' },
+];
+
+const VMDataTable = ({ rows = [], onCreateClick, onRowClick, onActionClick, emptyLabel }) => (
+  <Box sx={{ overflowX: 'auto', width: '100%' }}>
+    <Table size="small" sx={{ minWidth: 1100, borderCollapse: 'collapse' }}>
+      <TableHead>
+        <TableRow>
+          {VM_COLUMNS.map((col) => (
+            <TableCell
+              key={col.key}
+              sx={{
+                fontWeight: 600, fontSize: 13, color: '#424242',
+                py: 1.5, px: 1.5,
+                whiteSpace: col.wrap ? 'normal' : 'nowrap',
+                borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0',
+                bgcolor: 'transparent', lineHeight: 1.3,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                {col.label}
+                <UnfoldMoreIcon sx={{ fontSize: 14, color: '#bdbdbd', flexShrink: 0, mt: col.wrap ? 'auto' : 0 }} />
+              </Box>
+            </TableCell>
+          ))}
+          <TableCell
+            sx={{
+              fontWeight: 600, fontSize: 13, color: '#424242',
+              py: 1.5, px: 1.5, whiteSpace: 'nowrap',
+              borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0',
+            }}
+          >
+            Actions
+          </TableCell>
+        </TableRow>
+      </TableHead>
+
+      <TableBody>
+        {rows.length === 0 ? (
+          <TableRow sx={{ '&:hover': { bgcolor: 'transparent' } }}>
+            <TableCell colSpan={VM_COLUMNS.length + 1} align="center" sx={{ border: 0, py: 12 }}>
+              <Typography sx={{ fontSize: 14, color: '#757575', mb: 1 }}>
+                {emptyLabel || 'No records found.'}
+              </Typography>
+              <Link
+                component="button"
+                underline="none"
+                onClick={onCreateClick}
+                sx={{ color: '#1976d2', fontSize: 14, fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 0.25, cursor: 'pointer' }}
+              >
+                + Create
+              </Link>
+            </TableCell>
+          </TableRow>
+        ) : (
+          rows.map((row, idx) => (
+            <TableRow
+              key={row.id ?? idx}
+              hover
+              onClick={() => onRowClick && onRowClick(row)}
+              sx={{ '&:hover': { bgcolor: '#f5f5f5' }, cursor: onRowClick ? 'pointer' : 'default' }}
+            >
+              {VM_COLUMNS.map((col) => (
+                <TableCell key={col.key} sx={{ fontSize: 13, px: 1.5, color: '#212121', borderBottom: '1px solid #f0f0f0' }}>
+                  {col.key === 'vmName' ? (
+                    <Typography component="span" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, cursor: 'pointer' }}>
+                      {row[col.key] ?? '—'}
+                    </Typography>
+                  ) : (
+                    row[col.key] ?? '—'
+                  )}
+                </TableCell>
+              ))}
+              <TableCell sx={{ px: 1.5, borderBottom: '1px solid #f0f0f0' }}>
+                <Tooltip title="Actions" placement="top" arrow>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => onActionClick && onActionClick(e, row)}
+                    sx={{ color: '#757575', '&:hover': { color: '#1976d2' } }}
+                  >
+                    <MoreVertIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
+      </TableBody>
+    </Table>
+  </Box>
+);
+
+export default VMDataTable;
