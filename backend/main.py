@@ -1,11 +1,9 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
 from routers import platforms, regions, options, virtual_machines, compliance
-
-# Create all tables on startup
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="PAS Microapp API",
@@ -16,15 +14,18 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+def on_startup():
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Warning: Could not create tables: {e}")
 
 app.include_router(platforms.router)
 app.include_router(regions.router)
