@@ -1,5 +1,9 @@
 from database import SessionLocal
-from models import Region, PlatformType, PlatformStatus, DiskClass, DiskEncryption
+from models import (
+    Region, PlatformType, PlatformStatus,
+    DiskClass, DiskEncryption,
+    Pod, ComplianceTemplate, ComplianceTag,
+)
 
 
 def seed():
@@ -24,6 +28,18 @@ def seed():
         if db.query(DiskEncryption).count() == 0:
             encryptions = ["None", "AES-128", "AES-256"]
             db.add_all([DiskEncryption(name=e) for e in encryptions])
+
+        if db.query(Pod).count() == 0:
+            pods = ["POD-1", "POD-2", "POD-3", "POD-4", "POD-5"]
+            db.add_all([Pod(name=p) for p in pods])
+
+        if db.query(ComplianceTemplate).count() == 0:
+            templates = ["CIS Benchmark", "HIPAA", "PCI-DSS", "ISO 27001", "NIST", "SOC 2"]
+            db.add_all([ComplianceTemplate(name=t) for t in templates])
+
+        if db.query(ComplianceTag).count() == 0:
+            tags = ["Production", "Development", "Staging", "Testing", "Critical", "Low-Risk"]
+            db.add_all([ComplianceTag(name=t) for t in tags])
 
         db.commit()
         print("Database seeded successfully.")
