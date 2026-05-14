@@ -50,9 +50,14 @@ pipeline {
     post {
         success {
             echo 'Pipeline passed successfully!'
+            githubNotify status: 'SUCCESS', description: 'Build passed', context: 'jenkins/pipeline'
         }
         failure {
             echo 'Pipeline failed. Check the logs above.'
+            githubNotify status: 'FAILURE', description: 'Build failed', context: 'jenkins/pipeline'
+        }
+        aborted {
+            githubNotify status: 'ERROR', description: 'Build aborted', context: 'jenkins/pipeline'
         }
     }
 }
