@@ -48,7 +48,6 @@ import BuildOutlinedIcon        from '@mui/icons-material/BuildOutlined';
 import CloudOutlinedIcon        from '@mui/icons-material/CloudOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import LocationOnOutlinedIcon   from '@mui/icons-material/LocationOnOutlined';
-import InfoOutlinedIcon         from '@mui/icons-material/InfoOutlined';
 
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
@@ -70,7 +69,7 @@ const PlatformList = () => {
 
   const [page, setPage]               = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState(''); // eslint-disable-line no-unused-vars
   const [statusFilter, setStatusFilter] = useState('');
   const [regionFilter, setRegionFilter] = useState(() => localStorage.getItem(LOCATION_KEY) || '');
   const [menuAnchor, setMenuAnchor]   = useState(null);
@@ -100,7 +99,7 @@ const PlatformList = () => {
       if (status) params.status = status;
       const { data } = await axios.get('/api/platforms/', { params });
       setApiPlatforms(data);
-    } catch { } finally {
+    } catch (_e) { } finally { // eslint-disable-line no-empty
       setApiLoading(false);
     }
   }, []);
@@ -133,8 +132,6 @@ const PlatformList = () => {
 
   const hasActiveFilter = Boolean(searchInput || statusFilter);
   const paginatedData   = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  const firstRecord     = filteredData.length === 0 ? 0 : page * rowsPerPage + 1;
-  const lastRecord      = Math.min((page + 1) * rowsPerPage, filteredData.length);
 
   const handleChangePage     = (_, v) => setPage(v);
   const handleChangeRowsPage = (e)    => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };

@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Chip,
-  IconButton,
   Typography,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';

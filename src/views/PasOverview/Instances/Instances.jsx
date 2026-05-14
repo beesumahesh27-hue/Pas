@@ -28,7 +28,6 @@ import CameraAltOutlinedIcon      from '@mui/icons-material/CameraAltOutlined';
 import FeedbackOutlinedIcon       from '@mui/icons-material/FeedbackOutlined';
 import DnsOutlinedIcon            from '@mui/icons-material/DnsOutlined';
 import ComputerOutlinedIcon       from '@mui/icons-material/ComputerOutlined';
-import MoreVertIcon               from '@mui/icons-material/MoreVert';
 import FileDownloadOutlinedIcon   from '@mui/icons-material/FileDownloadOutlined';
 import LocationOnOutlinedIcon     from '@mui/icons-material/LocationOnOutlined';
 import { useNavigate }            from 'react-router-dom';
@@ -45,7 +44,7 @@ const LOCATION_KEY = 'compliance_current_location';
 const VirtualMachines = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode]               = useState('list');
-  const [searchValue, setSearchValue]         = useState('');
+  const [searchValue, setSearchValue]         = useState(''); // eslint-disable-line no-unused-vars
   const [regionFilter, setRegionFilter]       = useState('');
   const [podFilter, setPodFilter]             = useState('');
   const [powerStateFilter, setPowerStateFilter] = useState('');
@@ -104,7 +103,7 @@ const VirtualMachines = () => {
         const { region, pod } = JSON.parse(saved);
         if (region) setRegionFilter(region);
         if (pod)    setPodFilter(pod);
-      } catch { }
+      } catch (_e) { /* ignore invalid JSON */ }
     }
   }, []);
 
