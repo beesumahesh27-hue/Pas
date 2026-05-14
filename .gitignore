@@ -35,3 +35,11 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+backend/*.db
+backend/venv/
+backend/.venv/
