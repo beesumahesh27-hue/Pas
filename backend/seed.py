@@ -33,13 +33,19 @@ def seed():
             pods = ["POD-1", "POD-2", "POD-3", "POD-4", "POD-5"]
             db.add_all([Pod(name=p) for p in pods])
 
-        if db.query(ComplianceTemplate).count() == 0:
-            templates = ["CIS Benchmark", "HIPAA", "PCI-DSS", "ISO 27001", "NIST", "SOC 2"]
-            db.add_all([ComplianceTemplate(name=t) for t in templates])
+        _compliance_templates = [
+            "SOC 2 Type II", "ISO 27001", "HIPAA", "PCI-DSS",
+            "NIST CSF", "CIS Benchmark", "GDPR", "FedRAMP",
+        ]
+        existing_ct = {t.name for t in db.query(ComplianceTemplate).all()}
+        db.add_all([ComplianceTemplate(name=n) for n in _compliance_templates if n not in existing_ct])
 
-        if db.query(ComplianceTag).count() == 0:
-            tags = ["Production", "Development", "Staging", "Testing", "Critical", "Low-Risk"]
-            db.add_all([ComplianceTag(name=t) for t in tags])
+        _compliance_tags = [
+            "Production", "Development", "Staging", "Critical",
+            "High Risk", "Low Risk", "Data Privacy", "Encryption Required",
+        ]
+        existing_cg = {t.name for t in db.query(ComplianceTag).all()}
+        db.add_all([ComplianceTag(name=n) for n in _compliance_tags if n not in existing_cg])
 
         db.commit()
         print("Database seeded successfully.")

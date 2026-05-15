@@ -114,13 +114,24 @@ const ComplianceService = () => {
       return;
     }
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 800));
-    setSubmitting(false);
-    setSnack({
-      open: true,
-      msg: `Compliance applied: ${total} polic${total === 1 ? 'y' : 'ies'} for "${selectedPlatformObj?.pas_name}"`,
-      severity: 'success',
-    });
+    try {
+      await api.post('/compliance/submit', {
+        platform_id:   selectedPlatformObj.id,
+        platform_name: selectedPlatformObj.pas_name,
+        templates:     selectedTemplates,
+        tags:          selectedTags,
+      });
+      setSnack({
+        open: true,
+        msg: `Compliance applied: ${total} polic${total === 1 ? 'y' : 'ies'} for "${selectedPlatformObj.pas_name}"`,
+        severity: 'success',
+      });
+      setChecked({});
+    } catch (_e) {
+      setSnack({ open: true, msg: 'Failed to submit compliance policy. Please try again.', severity: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleExport = () => {
