@@ -8,6 +8,7 @@ module.exports = {
     '^constants/(.*)$': '<rootDir>/src/constants/$1',
     '^utils/(.*)$': '<rootDir>/src/utils/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^.*/services/api$': '<rootDir>/src/__mocks__/api.js',
   },
   transform: {
     '^.+\\.(js|jsx)$': 'babel-jest',
