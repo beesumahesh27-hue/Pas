@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
   Alert,
   Box,
@@ -90,6 +90,7 @@ const PlatformList = () => {
   const [regions, setRegions]           = useState([]);
   const [statusOptions, setStatusOptions] = useState([]);
   const [searchInput, setSearchInput]   = useState('');
+  const isFirstRender = useRef(true);
 
   const fetchPlatforms = useCallback(async (search = '', status = '') => {
     setApiLoading(true);
@@ -113,13 +114,17 @@ const PlatformList = () => {
 
   /* Debounce search input → API call */
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     const timer = setTimeout(() => {
       setSearchValue(searchInput);
       setPage(0);
       fetchPlatforms(searchInput, statusFilter);
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const stats = useMemo(() => ({
     total:       apiPlatforms.length,
