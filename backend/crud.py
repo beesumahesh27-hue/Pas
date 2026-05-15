@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import cast, String
 from models import Platform, Instance, VirtualMachine, VMDisk
 from schemas import PlatformCreate, PlatformUpdate
 import uuid
@@ -8,7 +7,7 @@ import uuid
 def get_platforms(db: Session, skip: int = 0, limit: int = 100, search: str = None, status: str = None):
     q = db.query(Platform).order_by(Platform.created_at.desc())
     if search:
-        q = q.filter(Platform.pas_name.ilike(f"%{search}%") | cast(Platform.id, String).ilike(f"%{search}%"))
+        q = q.filter(Platform.pas_name.ilike(f"%{search}%"))
     if status:
         q = q.filter(Platform.status == status)
     return q.offset(skip).limit(limit).all()
