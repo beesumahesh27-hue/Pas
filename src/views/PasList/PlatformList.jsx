@@ -52,8 +52,9 @@ import LocationOnOutlinedIcon   from '@mui/icons-material/LocationOnOutlined';
 import api from '../../services/api';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import CreatePas from './PasActions/CreatePas';
-import EditPas   from './PasActions/EditPas';
+import CreatePas      from './PasActions/CreatePas';
+import EditPas        from './PasActions/EditPas';
+import FeedbackDialog from '../PasOverview/Tasks/FeedbackDialog';
 
 const STAT_CARDS = [
   { key: 'total',       label: 'Total Platforms', color: '#1976d2', hoverBg: '#e3f2fd', border: '#90caf9', iconBg: '#ddeeff',  icon: <AppsOutlinedIcon       sx={{ fontSize: 28, color: '#1976d2' }} /> },
@@ -83,6 +84,7 @@ const PlatformList = () => {
 
   const [successMsg, setSuccessMsg]         = useState('');
   const [bannerSeverity, setBannerSeverity] = useState('success');
+  const [feedbackOpen, setFeedbackOpen]     = useState(false);
   const [showLocationInfo, setShowLocationInfo] = useState(!localStorage.getItem(LOCATION_KEY));
 
   const [apiPlatforms, setApiPlatforms] = useState([]);
@@ -124,7 +126,7 @@ const PlatformList = () => {
       fetchPlatforms(searchInput, statusFilter);
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchInput, statusFilter, fetchPlatforms]);
 
   const stats = useMemo(() => ({
     total:       apiPlatforms.length,
@@ -458,7 +460,7 @@ const PlatformList = () => {
             sx={{ '& .MuiToolbar-root': { pl: 0 } }} />
           <Button variant="contained" color="primary" size="small"
             startIcon={<FeedbackOutlinedIcon />}
-            onClick={() => alert('Thank you for your feedback!')}
+            onClick={() => setFeedbackOpen(true)}
             sx={{ textTransform: 'none', borderRadius: 2, px: 2 }}>
             Feedback
           </Button>
@@ -494,6 +496,7 @@ const PlatformList = () => {
 
         <CreatePas open={drawerOpen} onClose={handleDrawerClose} onCreated={() => { fetchPlatforms(); showBanner('Platform created successfully!'); }} />
         <EditPas   open={editDrawerOpen} onClose={handleEditClose} onUpdated={() => { fetchPlatforms(); showBanner('Platform updated successfully!'); }} platform={editRow} />
+        <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
       </Box>
     </Box>

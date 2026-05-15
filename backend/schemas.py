@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, computed_field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 
 class RegionResponse(BaseModel):
@@ -167,6 +167,23 @@ class VMResponse(BaseModel):
     gateway:         Optional[str]  = None
     created_at:      datetime
     updated_at:      Optional[datetime] = None
+    model_config = {"from_attributes": True}
+
+
+class CompliancePolicySubmissionCreate(BaseModel):
+    platform_id:   int
+    platform_name: str
+    templates:     List[str] = []
+    tags:          List[str] = []
+
+
+class CompliancePolicySubmissionResponse(BaseModel):
+    id:            int
+    platform_id:   int
+    platform_name: str
+    templates:     Optional[str] = None
+    tags:          Optional[str] = None
+    submitted_at:  datetime
     model_config = {"from_attributes": True}
 
 

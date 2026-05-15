@@ -12,6 +12,7 @@ import {
   Menu,
   MenuItem,
   Select,
+  TablePagination,
   TextField,
   Typography,
 } from '@mui/material';
@@ -36,8 +37,9 @@ import autoTable                  from 'jspdf-autotable';
 
 import StatCard     from '../../../components/StatCard';
 import VMDataTable  from '../../../components/VMDataTable';
-import CreateVMDialog from './CreateVMDialog';
-import api          from '../../../services/api';
+import CreateTask     from './CreateTask';
+import FeedbackDialog from './FeedbackDialog';
+import api            from '../../../services/api';
 
 const LOCATION_KEY = 'compliance_current_location';
 
@@ -60,6 +62,9 @@ const VirtualMachines = () => {
   const [exportAnchor, setExportAnchor]       = useState(null);
   const [filterMenuAnchor, setFilterMenuAnchor] = useState(null);
   const [successMsg, setSuccessMsg]           = useState('');
+  const [page, setPage]                       = useState(0);
+  const [rowsPerPage, setRowsPerPage]         = useState(10);
+  const [feedbackOpen, setFeedbackOpen]       = useState(false);
 
   /* Location info banner */
   const [showLocationInfo, setShowLocationInfo] = useState(!localStorage.getItem(LOCATION_KEY));
@@ -156,6 +161,7 @@ const VirtualMachines = () => {
   const handlePowerStateFilter = (val) => {
     setPowerStateFilter(val);
     setFilterMenuAnchor(null);
+    setPage(0);
     fetchVms(searchInput, val);
   };
 
@@ -183,7 +189,7 @@ const VirtualMachines = () => {
     const rows   = exportData.map(r => r.map(v => `"${v ?? ''}"`).join(',')).join('\n');
     const blob   = new Blob([`${header}\n${rows}`], { type: 'text/csv' });
     const url    = URL.createObjectURL(blob);
-    const a      = document.createElement('a'); a.href = url; a.download = 'compliance_policies.csv'; a.click();
+    const a      = document.createElement('a'); a.href = url; a.download = 'tasks.csv'; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -191,24 +197,24 @@ const VirtualMachines = () => {
     setExportAnchor(null);
     const doc = new jsPDF({ orientation: 'landscape' });
     doc.setFontSize(14);
-    doc.text('Compliance Policy', 14, 15);
+    doc.text('Task', 14, 15);
     autoTable(doc, { startY: 22, head: [exportCols], body: exportData, styles: { fontSize: 8 }, headStyles: { fillColor: [25, 118, 210] } });
-    doc.save('compliance_policies.pdf');
+    doc.save('tasks.pdf');
   };
 
   if (createPageOpen) {
     return (
       <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <CreateVMDialog
+        <CreateTask
           onClose={() => setCreatePageOpen(false)}
-          onCreated={() => { setCreatePageOpen(false); fetchVms('', ''); showBanner('Compliance policy created successfully!'); }}
+          onCreated={() => { setCreatePageOpen(false); fetchVms('', ''); showBanner('Task created successfully!'); }}
         />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ bgcolor: '#fff', minHeight: '100vh', px: 3, pt: 2, pb: 8 }}>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', px: 3, pt: 2, pb: 8 }}>
 
       {/* ── Success banner ── */}
       <Collapse in={Boolean(successMsg)}>
@@ -226,7 +232,7 @@ const VirtualMachines = () => {
           onClose={() => setShowLocationInfo(false)}
           sx={{ mb: 2, borderRadius: '8px', fontSize: 14, fontWeight: 500 }}
         >
-          Please select your <strong>Region</strong> and <strong>POD</strong> from the dropdowns on the right to filter compliance policies by location.
+          Please select your <strong>Region</strong> and <strong>POD</strong> from the dropdowns on the right to filter tasks by location.
         </Alert>
       </Collapse>
 
@@ -234,13 +240,13 @@ const VirtualMachines = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.75 }}>
         <Link href="/" underline="hover" sx={{ color: '#1976d2', fontSize: 13 }}>Home</Link>
         <Typography sx={{ fontSize: 13, color: '#9e9e9e' }}>&gt;</Typography>
-        <Typography sx={{ fontSize: 13, color: '#757575' }}>Compliance Policy</Typography>
+        <Typography sx={{ fontSize: 13, color: '#757575' }}>Task</Typography>
       </Box>
 
       {/* Page title */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
         <ComputerOutlinedIcon sx={{ fontSize: 34, color: '#1976d2' }} />
-        <Typography sx={{ fontWeight: 600, fontSize: 26, color: '#1a1a1a' }}>Compliance Policy</Typography>
+        <Typography sx={{ fontWeight: 600, fontSize: 26, color: 'text.primary' }}>Task</Typography>
       </Box>
 
       {/* Action bar */}
@@ -254,7 +260,7 @@ const VirtualMachines = () => {
 
         <Menu anchorEl={createMenuAnchor} open={Boolean(createMenuAnchor)} onClose={() => setCreateMenuAnchor(null)}
           PaperProps={{ sx: { minWidth: 210, mt: 0.5, boxShadow: '0 4px 16px rgba(0,0,0,0.12)' } }}>
-          <MenuItem onClick={openCreatePage} sx={{ fontSize: 14 }}>Create Compliance Policy</MenuItem>
+          <MenuItem onClick={openCreatePage} sx={{ fontSize: 14 }}>Create Task</MenuItem>
           <MenuItem onClick={openCreatePage} sx={{ fontSize: 14, color: '#1976d2' }}>Create Policy Manually</MenuItem>
         </Menu>
 
@@ -393,12 +399,35 @@ const VirtualMachines = () => {
 
       {/* Table */}
       <VMDataTable
-        rows={filteredVms}
+        rows={filteredVms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
         onCreateClick={openCreatePage}
         onRowClick={handleRowClick}
         onActionClick={handleActionClick}
-        emptyLabel="No Compliance Policy Found."
+        emptyLabel="No Tasks Found."
       />
+
+      {/* Pagination + Feedback */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <TablePagination
+          component="div"
+          count={filteredVms.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          rowsPerPageOptions={[5, 10, 25]}
+          onPageChange={(_, v) => setPage(v)}
+          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+          sx={{ '& .MuiToolbar-root': { pl: 0 } }}
+        />
+        <Button
+          variant="contained"
+          size="small"
+          startIcon={<FeedbackOutlinedIcon sx={{ fontSize: 16 }} />}
+          onClick={() => setFeedbackOpen(true)}
+          sx={{ textTransform: 'none', fontSize: 13, borderRadius: 2, px: 2, boxShadow: '0 2px 8px rgba(25,118,210,0.35)' }}
+        >
+          Feedback
+        </Button>
+      </Box>
 
       {/* Row action menu */}
       <Menu anchorEl={actionAnchor} open={Boolean(actionAnchor)} onClose={handleActionClose}
@@ -414,15 +443,7 @@ const VirtualMachines = () => {
         <MenuItem onClick={() => handleAction('delete')} sx={{ fontSize: 13, color: '#e53935' }}>Delete</MenuItem>
       </Menu>
 
-      {/* Fixed Feedback */}
-      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
-        <Button variant="contained" color="primary" size="small"
-          startIcon={<FeedbackOutlinedIcon sx={{ fontSize: 16 }} />}
-          onClick={() => alert('Thank you for your feedback!')}
-          sx={{ textTransform: 'none', fontSize: 13, borderRadius: 2, px: 2, boxShadow: '0 2px 8px rgba(25,118,210,0.45)' }}>
-          Feedback
-        </Button>
-      </Box>
+      <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </Box>
   );
 };

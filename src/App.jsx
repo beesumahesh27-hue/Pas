@@ -6,11 +6,13 @@ import { hideAlert } from './store/slices/alertSlice';
 import PlatformList from './views/PasList/PlatformList';
 import OverviewMain from './views/PasOverview/OverviewMain';
 import Overview from './views/PasOverview/Overview';
-import Instances from './views/PasOverview/Instances/Instances';
+import TaskList from './views/PasOverview/Tasks/TaskList';
 import Layout from './components/Layout';
+import ComplianceList    from './views/Compliance/ComplianceList';
+import ComplianceService from './views/Compliance/ComplianceService';
 
 // Virtual Machine module
-import VirtualMachines from './views/PasOverview/Instances/Instances';
+import VirtualMachines from './views/PasOverview/Tasks/TaskList';
 import VMDetailMain from './views/VirtualMachines/VMDetailMain';
 import VMOverview from './views/VirtualMachines/tabs/VMOverview';
 import VMDisks from './views/VirtualMachines/tabs/VMDisks';
@@ -31,9 +33,11 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<PlatformList />} />
+        <Route path="/compliances" element={<ComplianceList />} />
+        <Route path="/compliances/create" element={<ComplianceService />} />
         <Route path="/:id" element={<OverviewMain />}>
           <Route path="overview" element={<Overview />} />
-          <Route path="instances" element={<Instances />} />
+          <Route path="instances" element={<TaskList />} />
           <Route index element={<Overview />} />
         </Route>
 
