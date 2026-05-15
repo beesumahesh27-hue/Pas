@@ -8,6 +8,7 @@ import OverviewMain from './views/PasOverview/OverviewMain';
 import Overview from './views/PasOverview/Overview';
 import Instances from './views/PasOverview/Instances/Instances';
 import Layout from './components/Layout';
+import ComplianceService from './views/Compliance/ComplianceService';
 
 // Virtual Machine module
 import VirtualMachines from './views/PasOverview/Instances/Instances';
@@ -31,6 +32,7 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<PlatformList />} />
+        <Route path="/compliances" element={<ComplianceService />} />
         <Route path="/:id" element={<OverviewMain />}>
           <Route path="overview" element={<Overview />} />
           <Route path="instances" element={<Instances />} />
