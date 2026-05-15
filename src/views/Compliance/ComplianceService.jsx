@@ -65,21 +65,25 @@ const ComplianceService = () => {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    try {
-      const [pRes, tRes, gRes] = await Promise.all([
-        api.get('/platforms/'),
-        api.get('/compliance/templates'),
-        api.get('/compliance/tags'),
-      ]);
-      setPlatforms(pRes.data);
-      setTemplates(tRes.data);
-      setTags(gRes.data);
-      if (pRes.data.length > 0) setSelectedPlatform(pRes.data[0].id);
-    } catch (_e) {
-      setSnack({ open: true, msg: 'Failed to load compliance data', severity: 'error' });
-    } finally {
-      setLoading(false);
+    const [pRes, tRes, gRes] = await Promise.allSettled([
+      api.get('/platforms/'),
+      api.get('/compliance/templates'),
+      api.get('/compliance/tags'),
+    ]);
+
+    if (pRes.status === 'fulfilled') {
+      setPlatforms(pRes.value.data);
+      if (pRes.value.data.length > 0) setSelectedPlatform(pRes.value.data[0].id);
     }
+    if (tRes.status === 'fulfilled') setTemplates(tRes.value.data);
+    if (gRes.status === 'fulfilled') setTags(gRes.value.data);
+
+    const anyFailed = [pRes, tRes, gRes].some(r => r.status === 'rejected');
+    if (anyFailed) {
+      setSnack({ open: true, msg: 'Some compliance data failed to load', severity: 'warning' });
+    }
+
+    setLoading(false);
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
