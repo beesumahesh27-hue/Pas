@@ -66,7 +66,7 @@ const ComplianceList = () => {
       if (search) params.search = search;
       const { data } = await api.get('/compliance/submissions', { params });
       setSubmissions(data);
-    } catch (_e) {} finally {
+    } catch (_e) { /* ignore */ } finally {
       setLoading(false);
     }
   }, []);
@@ -81,7 +81,7 @@ const ComplianceList = () => {
       fetchSubmissions(searchInput).finally(() => setSearching(false));
     }, 400);
     return () => { clearTimeout(timer); setSearching(false); };
-  }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchInput, fetchSubmissions]);
 
   const paginatedData = submissions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
