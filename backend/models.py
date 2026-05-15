@@ -122,6 +122,17 @@ class ComplianceTag(Base):
     name = Column(String(100), nullable=False, unique=True)
 
 
+class CompliancePolicySubmission(Base):
+    __tablename__ = "compliance_submissions"
+
+    id            = Column(Integer, primary_key=True, index=True)
+    platform_id   = Column(Integer, ForeignKey("platforms.id", ondelete="CASCADE"), nullable=False)
+    platform_name = Column(String(255), nullable=False)
+    templates     = Column(Text, nullable=True)
+    tags          = Column(Text, nullable=True)
+    submitted_at  = Column(DateTime(timezone=True), server_default=func.now())
+
+
 class VMDisk(Base):
     __tablename__ = "vm_disks"
 
