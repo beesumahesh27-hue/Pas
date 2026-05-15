@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import List
 from database import get_db
 import models
 import schemas
@@ -58,7 +59,7 @@ def submit_compliance_policy(
     }
 
 
-@router.get("/submissions", response_model=list[schemas.CompliancePolicySubmissionResponse])
+@router.get("/submissions", response_model=List[schemas.CompliancePolicySubmissionResponse])
 def get_compliance_submissions(db: Session = Depends(get_db)):
     return db.query(models.CompliancePolicySubmission).order_by(
         models.CompliancePolicySubmission.submitted_at.desc()
