@@ -126,7 +126,7 @@ const PlatformList = () => {
       fetchPlatforms(searchInput, statusFilter);
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchInput, statusFilter, fetchPlatforms]);
 
   const stats = useMemo(() => ({
     total:       apiPlatforms.length,
