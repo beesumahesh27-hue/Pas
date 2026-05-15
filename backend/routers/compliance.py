@@ -60,7 +60,29 @@ def submit_compliance_policy(
 
 
 @router.get("/submissions", response_model=List[schemas.CompliancePolicySubmissionResponse])
-def get_compliance_submissions(db: Session = Depends(get_db)):
-    return db.query(models.CompliancePolicySubmission).order_by(
+def get_compliance_submissions(
+    search: str = None,
+    db: Session = Depends(get_db),
+):
+    q = db.query(models.CompliancePolicySubmission).order_by(
         models.CompliancePolicySubmission.submitted_at.desc()
-    ).all()
+    )
+    if search:
+        term = f"%{search}%"
+        q = q.filter(
+            models.CompliancePolicySubmission.platform_name.ilike(term) |
+            models.CompliancePolicySubmission.templates.ilike(term) |
+            models.CompliancePolicySubmission.tags.ilike(term)
+        )
+    return q.all()
+
+
+@router.delete("/submissions/{submission_id}", status_code=204)
+def delete_compliance_submission(submission_id: int, db: Session = Depends(get_db)):
+    row = db.query(models.CompliancePolicySubmission).filter(
+        models.CompliancePolicySubmission.id == submission_id
+    ).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    db.delete(row)
+    db.commit()
