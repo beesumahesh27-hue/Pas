@@ -170,6 +170,55 @@ class VMResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ── Calendar Job Schemas ─────────────────────────────────────────────────────
+
+class JobCreate(BaseModel):
+    title:       str            = Field(..., min_length=1, max_length=255)
+    category:    str            = Field(default="work", min_length=1, max_length=50)
+    location:    Optional[str]  = None
+    description: Optional[str]  = None
+    all_day:     bool           = False
+    start:       datetime
+    end:         datetime
+
+
+class JobUpdate(BaseModel):
+    title:       Optional[str]      = Field(default=None, min_length=1, max_length=255)
+    category:    Optional[str]      = None
+    location:    Optional[str]      = None
+    description: Optional[str]      = None
+    all_day:     Optional[bool]     = None
+    start:       Optional[datetime] = None
+    end:         Optional[datetime] = None
+
+
+class JobResponse(BaseModel):
+    id:          int
+    title:       str
+    category:    str
+    location:    Optional[str] = None
+    description: Optional[str] = None
+    all_day:     bool
+    start:       datetime
+    end:         datetime
+    created_at:  datetime
+    updated_at:  Optional[datetime] = None
+    model_config = {"from_attributes": True}
+
+
+class NotificationResponse(BaseModel):
+    id:         int
+    job_id:     int
+    notify_at:  datetime
+    status:     str
+    created_at: datetime
+    # Joined fields from Job — handy so frontend doesn't have to fetch twice
+    job_title:    Optional[str] = None
+    job_start:    Optional[datetime] = None
+    job_category: Optional[str] = None
+    model_config = {"from_attributes": True}
+
+
 class VMDiskCreate(BaseModel):
     disk_name:  str            = Field(default="Hard disk 1")
     size_gb:    int            = Field(default=50, ge=1)
