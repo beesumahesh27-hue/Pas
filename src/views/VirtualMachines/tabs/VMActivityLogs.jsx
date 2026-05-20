@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -22,18 +22,18 @@ const VMActivityLogs = () => {
   const [logs, setLogs]       = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchLogs = () => {
+  const fetchLogs = useCallback(() => {
     if (!vmId) return;
     setLoading(true);
     api.get(`/vms/${vmId}/activity`)
       .then(({ data }) => setLogs(data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  };
+  }, [vmId]);
 
   useEffect(() => {
     fetchLogs();
-  }, [vmId]);
+  }, [fetchLogs]);
 
   const formatTs = (ts) => {
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -70,7 +70,7 @@ const DiskDrawer = ({ open, onClose, onSaved, vmId, editDisk }) => {
     }
     setErrors({});
     setApiError('');
-  }, [open, editDisk]);
+  }, [open, editDisk, isEdit]);
 
   const handleChange = (field) => (e) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
@@ -229,7 +229,7 @@ const VMDisks = () => {
   const [menuAnchor, setMenuAnchor]   = useState(null);
   const [menuDisk, setMenuDisk]       = useState(null);
 
-  const fetchDisks = (searchTerm = search) => {
+  const fetchDisks = useCallback((searchTerm = '') => {
     if (!vmId) return;
     setLoading(true);
     const params = searchTerm ? { search: searchTerm } : {};
@@ -237,9 +237,9 @@ const VMDisks = () => {
       .then(({ data }) => setDisks(data))
       .catch(() => {})
       .finally(() => setLoading(false));
-  };
+  }, [vmId]);
 
-  useEffect(() => { fetchDisks(''); }, [vmId]);
+  useEffect(() => { fetchDisks(''); }, [fetchDisks]);
 
   // Debounce: trigger API search 400ms after user stops typing
   useEffect(() => {
@@ -249,7 +249,7 @@ const VMDisks = () => {
       fetchDisks(searchInput);
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput, fetchDisks]);
 
   const openAdd  = () => { setEditDisk(null); setDrawerOpen(true); };
   const openEdit = (disk) => { setMenuAnchor(null); setMenuDisk(null); setEditDisk(disk); setDrawerOpen(true); };
@@ -261,7 +261,7 @@ const VMDisks = () => {
     handleMenuClose();
     if (!menuDisk) return;
     await api.delete(`/vms/${vmId}/disks/${menuDisk.id}`).catch(() => {});
-    fetchDisks();
+    fetchDisks(search);
   };
 
   const totalRecords = disks.length;
