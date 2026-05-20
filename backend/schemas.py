@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, computed_field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 
 class RegionResponse(BaseModel):

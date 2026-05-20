@@ -21,10 +21,11 @@ import ArrowBackIcon         from '@mui/icons-material/ArrowBack';
 import InfoOutlinedIcon      from '@mui/icons-material/InfoOutlined';
 import AddIcon               from '@mui/icons-material/Add';
 import CloseIcon             from '@mui/icons-material/Close';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ComputerOutlinedIcon  from '@mui/icons-material/ComputerOutlined';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
+
+import FeedbackDialog from './FeedbackDialog';
 
 const TABS = ['Basics', 'Networking', 'Advanced', 'Review + Create'];
 
@@ -93,6 +94,7 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
   const [errors, setErrors]             = useState({});
   const [submitting, setSubmitting]     = useState(false);
   const [apiError, setApiError]         = useState('');
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [regions, setRegions]                   = useState([]);
   const [pods, setPods]                         = useState([]);
   const [templateOptions, setTemplateOptions]   = useState([]);
@@ -402,21 +404,21 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
           sx={{ textTransform: 'none', fontSize: 13, ml: 1 }}>
           Cancel
         </Button>
-      </Box>
 
-      {/* Fixed Feedback button */}
-      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1300 }}>
+        <Box sx={{ flex: 1 }} />
+
         <Button
           variant="contained"
-          color="primary"
           size="small"
           startIcon={<FeedbackOutlinedIcon sx={{ fontSize: 16 }} />}
-          onClick={() => alert('Thank you for your feedback!')}
-          sx={{ textTransform: 'none', fontSize: 13, borderRadius: 2, px: 2, boxShadow: '0 2px 8px rgba(25,118,210,0.45)' }}
+          onClick={() => setFeedbackOpen(true)}
+          sx={{ textTransform: 'none', fontSize: 13, borderRadius: 2, px: 2, boxShadow: '0 2px 8px rgba(25,118,210,0.35)' }}
         >
           Feedback
         </Button>
       </Box>
+
+      <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </Box>
   );
 };

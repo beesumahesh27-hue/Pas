@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../../services/api';
 import {
   Alert,
   Box,
@@ -60,9 +60,9 @@ const EditPas = ({ open, onClose, onUpdated, platform }) => {
         uptime:      platform.uptime      || '',
       });
     }
-    axios.get('/api/regions/').then(({ data }) => setRegions(data.map(r => r.name))).catch(() => {});
-    axios.get('/api/options/statuses').then(({ data }) => setStatusOptions(data.map(s => s.name))).catch(() => {});
-    axios.get('/api/options/types').then(({ data }) => setTypeOptions(data.map(t => t.name))).catch(() => {});
+    api.get('/regions/').then(({ data }) => setRegions(data.map(r => r.name))).catch(() => {});
+    api.get('/options/statuses').then(({ data }) => setStatusOptions(data.map(s => s.name))).catch(() => {});
+    api.get('/options/types').then(({ data }) => setTypeOptions(data.map(t => t.name))).catch(() => {});
   }, [open, platform]);
 
   const handleChange = (e) => {
@@ -95,7 +95,7 @@ const EditPas = ({ open, onClose, onUpdated, platform }) => {
         cpu:   parseInt(formData.cpu, 10),
         users: parseInt(formData.users, 10) || 0,
       };
-      await axios.put(`/api/platforms/${platform.id}`, payload);
+      await api.put(`/platforms/${platform.id}`, payload);
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);

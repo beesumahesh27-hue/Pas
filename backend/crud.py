@@ -26,7 +26,7 @@ def _upsert_notification(db: Session, job: Job):
 def get_platforms(db: Session, skip: int = 0, limit: int = 100, search: str = None, status: str = None):
     q = db.query(Platform).order_by(Platform.created_at.desc())
     if search:
-        q = q.filter(Platform.pas_name.ilike(f"%{search}%") | Platform.pas_id.ilike(f"%{search}%"))
+        q = q.filter(Platform.pas_name.ilike(f"%{search}%"))
     if status:
         q = q.filter(Platform.status == status)
     return q.offset(skip).limit(limit).all()
