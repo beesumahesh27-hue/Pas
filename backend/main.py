@@ -40,6 +40,16 @@ app.include_router(jobs.router)
 app.include_router(notifications.router)
 
 
+@app.get("/", tags=["root"])
+def root():
+    return {
+        "service": "PAS Microapp API",
+        "status": "running",
+        "docs": "/api/docs",
+        "health": "/api/health",
+    }
+
+
 @app.get("/api/health", tags=["health"])
 def health_check():
     return {"status": "healthy"}
