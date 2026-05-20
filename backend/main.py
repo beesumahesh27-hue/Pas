@@ -1,8 +1,9 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
-from routers import platforms, regions, options, virtual_machines, compliance
+from routers import platforms, regions, options, virtual_machines, compliance, jobs, notifications
 
 # Create all tables on startup
 Base.metadata.create_all(bind=engine)
@@ -16,21 +17,27 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+def on_startup():
+    try:
+        Base.metadata.create_all(bind=engine)
+        seed()
+    except Exception as e:
+        print(f"Warning: Startup error: {e}")
 
 app.include_router(platforms.router)
 app.include_router(regions.router)
 app.include_router(options.router)
 app.include_router(virtual_machines.router)
 app.include_router(compliance.router)
+app.include_router(jobs.router)
+app.include_router(notifications.router)
 
 
 @app.get("/api/health", tags=["health"])

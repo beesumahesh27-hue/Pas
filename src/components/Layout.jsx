@@ -18,6 +18,8 @@ import {
   Typography,
 } from '@mui/material';
 
+import FeedbackDialog                from '../views/PasOverview/Tasks/FeedbackDialog';
+
 import SearchIcon                     from '@mui/icons-material/Search';
 import NotificationsOutlinedIcon      from '@mui/icons-material/NotificationsOutlined';
 import KeyboardArrowDownIcon          from '@mui/icons-material/KeyboardArrowDown';
@@ -60,7 +62,7 @@ const NAV_GROUPS = [
   {
     label: 'DASHBOARDS',
     items: [
-      { icon: <CalendarTodayOutlinedIcon sx={{ fontSize: 20 }} />, label: 'Calendar',     path: null },
+      { icon: <CalendarTodayOutlinedIcon sx={{ fontSize: 20 }} />, label: 'Calendar',     path: '/calendar' },
       { icon: <LightbulbOutlinedIcon sx={{ fontSize: 20 }} />,     label: 'Insights',     path: null },
       { icon: <DeleteOutlineIcon sx={{ fontSize: 20 }} />,         label: 'Recycle Bin',  path: null },
     ],
@@ -89,6 +91,7 @@ const NAV_ITEMS = NAV_GROUPS.flatMap(g => g.items);
 
 const Layout = ({ children }) => {
   const [darkMode, setDarkMode]           = useState(false);
+  const [feedbackOpen, setFeedbackOpen]   = useState(false);
   const [adminAnchor, setAdminAnchor]     = useState(null);
   const [profileAnchor, setProfileAnchor] = useState(null);
   const [sidebarOpen, setSidebarOpen]     = useState(false);
@@ -167,7 +170,7 @@ const Layout = ({ children }) => {
 
             {/* Feedback icon */}
             <Tooltip title={sidebarOpen ? '' : 'Feedback'} placement="right" arrow>
-              <Box sx={{ width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 1.5, cursor: 'pointer', color: '#9e9e9e', '&:hover': { bgcolor: '#f1f5f9', color: '#424242' } }}>
+              <Box onClick={() => setFeedbackOpen(true)} sx={{ width: 38, height: 38, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 1.5, cursor: 'pointer', color: '#9e9e9e', '&:hover': { bgcolor: '#f1f5f9', color: '#424242' } }}>
                 <ChatBubbleOutlineIcon sx={{ fontSize: 19 }} />
               </Box>
             </Tooltip>
@@ -250,6 +253,7 @@ const Layout = ({ children }) => {
 
             {/* Feedback at bottom */}
             <Box
+              onClick={() => setFeedbackOpen(true)}
               sx={{
                 display: 'flex', alignItems: 'center', gap: 1.5,
                 mx: 1.5, px: 1.5, py: 1, mb: 1, borderRadius: 1.5, cursor: 'pointer',
@@ -438,6 +442,9 @@ const Layout = ({ children }) => {
             </MenuItem>
           </Box>
         </Popover>
+
+        {/* Feedback Dialog */}
+        <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
       </Box>
     </ThemeProvider>

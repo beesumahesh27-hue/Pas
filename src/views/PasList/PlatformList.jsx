@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
   Alert,
   Box,
@@ -48,13 +48,13 @@ import BuildOutlinedIcon        from '@mui/icons-material/BuildOutlined';
 import CloudOutlinedIcon        from '@mui/icons-material/CloudOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import LocationOnOutlinedIcon   from '@mui/icons-material/LocationOnOutlined';
-import InfoOutlinedIcon         from '@mui/icons-material/InfoOutlined';
 
-import axios from 'axios';
+import api from '../../services/api';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import CreatePas from './PasActions/CreatePas';
-import EditPas   from './PasActions/EditPas';
+import CreatePas      from './PasActions/CreatePas';
+import EditPas        from './PasActions/EditPas';
+import FeedbackDialog from '../PasOverview/Tasks/FeedbackDialog';
 
 const STAT_CARDS = [
   { key: 'total',       label: 'Total Platforms', color: '#1976d2', hoverBg: '#e3f2fd', border: '#90caf9', iconBg: '#ddeeff',  icon: <AppsOutlinedIcon       sx={{ fontSize: 28, color: '#1976d2' }} /> },
@@ -70,7 +70,7 @@ const PlatformList = () => {
 
   const [page, setPage]               = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState(''); // eslint-disable-line no-unused-vars
   const [statusFilter, setStatusFilter] = useState('');
   const [regionFilter, setRegionFilter] = useState(() => localStorage.getItem(LOCATION_KEY) || '');
   const [menuAnchor, setMenuAnchor]   = useState(null);
@@ -84,6 +84,7 @@ const PlatformList = () => {
 
   const [successMsg, setSuccessMsg]         = useState('');
   const [bannerSeverity, setBannerSeverity] = useState('success');
+  const [feedbackOpen, setFeedbackOpen]     = useState(false);
   const [showLocationInfo, setShowLocationInfo] = useState(!localStorage.getItem(LOCATION_KEY));
 
   const [apiPlatforms, setApiPlatforms] = useState([]);
@@ -91,6 +92,7 @@ const PlatformList = () => {
   const [regions, setRegions]           = useState([]);
   const [statusOptions, setStatusOptions] = useState([]);
   const [searchInput, setSearchInput]   = useState('');
+  const isFirstRender = useRef(true);
 
   const fetchPlatforms = useCallback(async (search = '', status = '') => {
     setApiLoading(true);
@@ -98,9 +100,9 @@ const PlatformList = () => {
       const params = {};
       if (search) params.search = search;
       if (status) params.status = status;
-      const { data } = await axios.get('/api/platforms/', { params });
+      const { data } = await api.get('/platforms/', { params });
       setApiPlatforms(data);
-    } catch { } finally {
+    } catch (_e) { } finally { // eslint-disable-line no-empty
       setApiLoading(false);
     }
   }, []);
@@ -108,19 +110,23 @@ const PlatformList = () => {
   useEffect(() => { fetchPlatforms(); }, [fetchPlatforms]);
 
   useEffect(() => {
-    axios.get('/api/regions/').then(({ data }) => setRegions(data.map(r => r.name))).catch(() => {});
-    axios.get('/api/options/statuses').then(({ data }) => setStatusOptions(data.map(s => s.name))).catch(() => {});
+    api.get('/regions/').then(({ data }) => setRegions(data.map(r => r.name))).catch(() => {});
+    api.get('/options/statuses').then(({ data }) => setStatusOptions(data.map(s => s.name))).catch(() => {});
   }, []);
 
   /* Debounce search input → API call */
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     const timer = setTimeout(() => {
       setSearchValue(searchInput);
       setPage(0);
       fetchPlatforms(searchInput, statusFilter);
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput, statusFilter, fetchPlatforms]);
 
   const stats = useMemo(() => ({
     total:       apiPlatforms.length,
@@ -133,8 +139,6 @@ const PlatformList = () => {
 
   const hasActiveFilter = Boolean(searchInput || statusFilter);
   const paginatedData   = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  const firstRecord     = filteredData.length === 0 ? 0 : page * rowsPerPage + 1;
-  const lastRecord      = Math.min((page + 1) * rowsPerPage, filteredData.length);
 
   const handleChangePage     = (_, v) => setPage(v);
   const handleChangeRowsPage = (e)    => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
@@ -171,7 +175,7 @@ const PlatformList = () => {
   const handleStatusChange = async (row, newStatus) => {
     handleMenuClose();
     try {
-      await axios.put(`/api/platforms/${row.id}`, { status: newStatus });
+      await api.put(`/platforms/${row.id}`, { status: newStatus });
       await fetchPlatforms();
       showBanner(`"${row.pas_name}" status updated to ${newStatus}.`);
     } catch {
@@ -183,7 +187,7 @@ const PlatformList = () => {
     handleMenuClose();
     if (!window.confirm(`Are you sure you want to delete "${row.pas_name}"?\n\nThis action cannot be undone.`)) return;
     try {
-      await axios.delete(`/api/platforms/${row.id}`);
+      await api.delete(`/platforms/${row.id}`);
       await fetchPlatforms();
       showBanner(`Platform "${row.pas_name}" deleted successfully!`);
     } catch {
@@ -456,7 +460,7 @@ const PlatformList = () => {
             sx={{ '& .MuiToolbar-root': { pl: 0 } }} />
           <Button variant="contained" color="primary" size="small"
             startIcon={<FeedbackOutlinedIcon />}
-            onClick={() => alert('Thank you for your feedback!')}
+            onClick={() => setFeedbackOpen(true)}
             sx={{ textTransform: 'none', borderRadius: 2, px: 2 }}>
             Feedback
           </Button>
@@ -492,6 +496,7 @@ const PlatformList = () => {
 
         <CreatePas open={drawerOpen} onClose={handleDrawerClose} onCreated={() => { fetchPlatforms(); showBanner('Platform created successfully!'); }} />
         <EditPas   open={editDrawerOpen} onClose={handleEditClose} onUpdated={() => { fetchPlatforms(); showBanner('Platform updated successfully!'); }} platform={editRow} />
+        <FeedbackDialog open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
       </Box>
     </Box>

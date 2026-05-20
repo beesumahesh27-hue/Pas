@@ -16,6 +16,9 @@ export default defineConfig({
       constants: path.resolve(__dirname, 'src/constants'),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1600,
+  },
   server: {
     port: 3000,
     open: true,

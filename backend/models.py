@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, DateTime
 from sqlalchemy.sql import func
 from database import Base
 import uuid as _uuid
@@ -120,6 +120,31 @@ class ComplianceTag(Base):
 
     id   = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False, unique=True)
+
+
+class Job(Base):
+    __tablename__ = "jobs"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    title       = Column(String(255), nullable=False)
+    category    = Column(String(50),  nullable=False, default="work")
+    location    = Column(String(255), nullable=True)
+    description = Column(Text,        nullable=True)
+    all_day     = Column(Boolean,     nullable=False, default=False)
+    start       = Column(DateTime(timezone=True), nullable=False)
+    end         = Column(DateTime(timezone=True), nullable=False)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at  = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class JobNotification(Base):
+    __tablename__ = "job_notifications"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    job_id     = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    notify_at  = Column(DateTime(timezone=True), nullable=False, index=True)
+    status     = Column(String(20), nullable=False, default="pending")  # pending | dismissed
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class VMDisk(Base):
