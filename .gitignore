@@ -33,11 +33,11 @@ Thumbs.db
 *.cache
 .vite/
 
+# Claude Code
+.claude/
+
 # Test coverage
 coverage/
-
-# Claude Code session data
-.claude/
 
 # Logs
 logs/

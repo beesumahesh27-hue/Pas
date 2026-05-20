@@ -3,8 +3,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
-from routers import platforms, regions, options, virtual_machines, compliance
-from seed import seed
+from routers import platforms, regions, options, virtual_machines, compliance, jobs, notifications
+
+# Create all tables on startup
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="PAS Microapp API",
@@ -34,6 +36,8 @@ app.include_router(regions.router)
 app.include_router(options.router)
 app.include_router(virtual_machines.router)
 app.include_router(compliance.router)
+app.include_router(jobs.router)
+app.include_router(notifications.router)
 
 
 @app.get("/api/health", tags=["health"])

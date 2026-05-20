@@ -8,6 +8,7 @@ import OverviewMain from './views/PasOverview/OverviewMain';
 import Overview from './views/PasOverview/Overview';
 import TaskList from './views/PasOverview/Tasks/TaskList';
 import Layout from './components/Layout';
+import NotificationPoller from './components/NotificationPoller';
 import ComplianceList    from './views/Compliance/ComplianceList';
 import ComplianceService from './views/Compliance/ComplianceService';
 
@@ -21,6 +22,9 @@ import VMSnapshots from './views/VirtualMachines/tabs/VMSnapshots';
 import VMActivityLogs from './views/VirtualMachines/tabs/VMActivityLogs';
 import VMScaleConfig from './views/VirtualMachines/tabs/VMScaleConfig';
 
+// Calendar module
+import CalendarMain from './views/Calendar/CalendarMain';
+
 function App() {
   const dispatch = useDispatch();
   const alert = useSelector((state) => state.alert);
@@ -31,6 +35,7 @@ function App() {
 
   return (
     <Layout>
+      <NotificationPoller />
       <Routes>
         <Route path="/" element={<PlatformList />} />
         <Route path="/compliances" element={<ComplianceList />} />
@@ -40,6 +45,9 @@ function App() {
           <Route path="instances" element={<TaskList />} />
           <Route index element={<Overview />} />
         </Route>
+
+        {/* Calendar route */}
+        <Route path="/calendar" element={<CalendarMain />} />
 
         {/* Virtual Machine routes */}
         <Route path="/vms" element={<VirtualMachines />} />

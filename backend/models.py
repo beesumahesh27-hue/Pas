@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Text, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, DateTime
 from sqlalchemy.sql import func
 from database import Base
 import uuid as _uuid
@@ -122,15 +122,29 @@ class ComplianceTag(Base):
     name = Column(String(100), nullable=False, unique=True)
 
 
-class CompliancePolicySubmission(Base):
-    __tablename__ = "compliance_submissions"
+class Job(Base):
+    __tablename__ = "jobs"
 
-    id            = Column(Integer, primary_key=True, index=True)
-    platform_id   = Column(Integer, ForeignKey("platforms.id", ondelete="CASCADE"), nullable=False)
-    platform_name = Column(String(255), nullable=False)
-    templates     = Column(Text, nullable=True)
-    tags          = Column(Text, nullable=True)
-    submitted_at  = Column(DateTime(timezone=True), server_default=func.now())
+    id          = Column(Integer, primary_key=True, index=True)
+    title       = Column(String(255), nullable=False)
+    category    = Column(String(50),  nullable=False, default="work")
+    location    = Column(String(255), nullable=True)
+    description = Column(Text,        nullable=True)
+    all_day     = Column(Boolean,     nullable=False, default=False)
+    start       = Column(DateTime(timezone=True), nullable=False)
+    end         = Column(DateTime(timezone=True), nullable=False)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at  = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class JobNotification(Base):
+    __tablename__ = "job_notifications"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    job_id     = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True)
+    notify_at  = Column(DateTime(timezone=True), nullable=False, index=True)
+    status     = Column(String(20), nullable=False, default="pending")  # pending | dismissed
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class VMDisk(Base):
