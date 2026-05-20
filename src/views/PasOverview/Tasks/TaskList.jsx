@@ -98,7 +98,7 @@ const VirtualMachines = () => {
       fetchVms(searchInput, powerStateFilter);
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput, powerStateFilter, fetchVms]);
 
   /* Restore saved location on mount */
   useEffect(() => {

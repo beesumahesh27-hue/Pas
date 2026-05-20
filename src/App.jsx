@@ -9,6 +9,8 @@ import Overview from './views/PasOverview/Overview';
 import TaskList from './views/PasOverview/Tasks/TaskList';
 import Layout from './components/Layout';
 import NotificationPoller from './components/NotificationPoller';
+import ComplianceList    from './views/Compliance/ComplianceList';
+import ComplianceService from './views/Compliance/ComplianceService';
 
 // Virtual Machine module
 import VirtualMachines from './views/PasOverview/Tasks/TaskList';
