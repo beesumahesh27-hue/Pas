@@ -219,6 +219,25 @@ class NotificationResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ── Compliance Policy Submission Schemas ────────────────────────────────────
+
+class CompliancePolicySubmissionCreate(BaseModel):
+    platform_id:   int
+    platform_name: str
+    templates:     List[str] = []
+    tags:          List[str] = []
+
+
+class CompliancePolicySubmissionResponse(BaseModel):
+    id:            int
+    platform_id:   int
+    platform_name: str
+    templates:     Optional[str] = None
+    tags:          Optional[str] = None
+    submitted_at:  datetime
+    model_config = {"from_attributes": True}
+
+
 class VMDiskCreate(BaseModel):
     disk_name:  str            = Field(default="Hard disk 1")
     size_gb:    int            = Field(default=50, ge=1)
