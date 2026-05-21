@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
 from routers import platforms, regions, options, virtual_machines, compliance, jobs, notifications
+from seed import seed
 
 # Create all tables on startup
 Base.metadata.create_all(bind=engine)
