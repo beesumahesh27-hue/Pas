@@ -8,7 +8,6 @@ import OverviewMain from './views/PasOverview/OverviewMain';
 import Overview from './views/PasOverview/Overview';
 import TaskList from './views/PasOverview/Tasks/TaskList';
 import Layout from './components/Layout';
-import NotificationPoller from './components/NotificationPoller';
 import ComplianceList    from './views/Compliance/ComplianceList';
 import ComplianceService from './views/Compliance/ComplianceService';
 
@@ -35,7 +34,6 @@ function App() {
 
   return (
     <Layout>
-      <NotificationPoller />
       <Routes>
         <Route path="/" element={<PlatformList />} />
         <Route path="/compliances" element={<ComplianceList />} />

@@ -30,7 +30,7 @@ import DayView      from './DayView';
 import CreateJob    from './CalendarActions/CreateJob';
 import JobDetails   from './CalendarActions/JobDetails';
 
-import { listJobs, deleteJob, getJobStats, JOB_CATEGORIES } from './jobsStorage';
+import { listJobs, deleteJob, getJobStats, listJobCategories } from './jobsStorage';
 import { addDays, addMonths, formatHeader } from './calendarUtils';
 
 const VIEWS = ['Month', 'Week', 'Day'];
@@ -43,9 +43,10 @@ const CalendarMain = () => {
   const [view, setView]             = useState('Month');
   const [jobs, setJobs]             = useState([]);
   const [stats, setStats]           = useState({});
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [loadError, setLoadError]   = useState('');
-  const [enabledCats, setEnabledCats] = useState(() => JOB_CATEGORIES.map(c => c.key));
+  const [enabledCats, setEnabledCats] = useState([]);
 
   const [createOpen, setCreateOpen]   = useState(false);
   const [createPreset, setCreatePreset] = useState(null);
@@ -70,6 +71,21 @@ const CalendarMain = () => {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  const ensureCategoriesLoaded = useCallback(async () => {
+    if (categories.length) return;
+    try {
+      const cats = await listJobCategories();
+      setCategories(cats);
+      setEnabledCats(prev => (prev.length ? prev : cats.map(c => c.key)));
+    } catch {
+      /* silent — sidebar/dropdown will stay empty if this fails */
+    }
+  }, [categories.length]);
+
+  useEffect(() => {
+    if (createOpen) ensureCategoriesLoaded();
+  }, [createOpen, ensureCategoriesLoaded]);
 
   const visibleJobs = useMemo(
     () => jobs.filter(j => enabledCats.includes(j.category || 'work')),
@@ -243,7 +259,7 @@ const CalendarMain = () => {
               <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.6, mb: 1, height: 18 }}>
                 Categories
               </Typography>
-              {JOB_CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <Box key={c.key} sx={{ height: 34, display: 'flex', alignItems: 'center' }}>
                   <Checkbox
                     size="small"
@@ -265,7 +281,7 @@ const CalendarMain = () => {
               <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.6, mb: 1, height: 18 }}>
                 Status
               </Typography>
-              {JOB_CATEGORIES.map((c) => {
+              {categories.map((c) => {
                 const count = stats?.[c.key] || 0;
                 return (
                   <Box
@@ -342,6 +358,7 @@ const CalendarMain = () => {
         onSaved={handleSaved}
         presetDate={createPreset}
         job={editingJob}
+        categories={categories}
       />
 
       {/* Event details popover */}
@@ -351,6 +368,7 @@ const CalendarMain = () => {
         onClose={closeDetails}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        categories={categories}
       />
     </Box>
   );
