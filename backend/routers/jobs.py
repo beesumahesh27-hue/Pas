@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 import crud
 import schemas
+from models import JobCategory
 from database import get_db
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
@@ -14,6 +15,11 @@ router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 @router.get("/stats")
 def job_stats(db: Session = Depends(get_db)):
     return crud.get_job_stats(db)
+
+
+@router.get("/categories", response_model=List[schemas.JobCategoryResponse])
+def list_job_categories(db: Session = Depends(get_db)):
+    return db.query(JobCategory).order_by(JobCategory.sort_order, JobCategory.id).all()
 
 
 @router.get("/", response_model=List[schemas.JobResponse])

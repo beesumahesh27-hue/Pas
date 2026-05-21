@@ -15,7 +15,7 @@ import AccessTimeOutlinedIcon  from '@mui/icons-material/AccessTimeOutlined';
 import LocationOnOutlinedIcon  from '@mui/icons-material/LocationOnOutlined';
 import NotesOutlinedIcon       from '@mui/icons-material/NotesOutlined';
 
-import { JOB_CATEGORIES, getCategoryColor } from '../jobsStorage';
+import { getCategoryColor, getCategoryLabel } from '../jobsStorage';
 import { formatTime, MONTHS, isSameDay } from '../calendarUtils';
 
 const formatRange = (job) => {
@@ -31,10 +31,11 @@ const formatRange = (job) => {
   return `${dayLabel(s)} ${formatTime(s)} – ${dayLabel(e)} ${formatTime(e)}`;
 };
 
-const JobDetails = ({ anchorEl, job, onClose, onEdit, onDelete }) => {
+const JobDetails = ({ anchorEl, job, onClose, onEdit, onDelete, categories = [] }) => {
   if (!job) return null;
-  const color = getCategoryColor(job.category);
-  const categoryLabel = JOB_CATEGORIES.find(c => c.key === job.category)?.label || job.category;
+  const matched = categories.find(c => c.key === job.category);
+  const color = matched?.color || getCategoryColor(job.category);
+  const categoryLabel = matched?.label || getCategoryLabel(job.category);
 
   return (
     <Popover

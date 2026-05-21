@@ -172,6 +172,14 @@ class VMResponse(BaseModel):
 
 # ── Calendar Job Schemas ─────────────────────────────────────────────────────
 
+class JobCategoryResponse(BaseModel):
+    id:    int
+    key:   str
+    label: str
+    color: str
+    model_config = {"from_attributes": True}
+
+
 class JobCreate(BaseModel):
     title:       str            = Field(..., min_length=1, max_length=255)
     category:    str            = Field(default="work", min_length=1, max_length=50)

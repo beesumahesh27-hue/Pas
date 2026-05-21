@@ -18,7 +18,7 @@ import {
 import CloseIcon            from '@mui/icons-material/Close';
 import EventOutlinedIcon    from '@mui/icons-material/EventOutlined';
 
-import { createJob, updateJob, JOB_CATEGORIES } from '../jobsStorage';
+import { createJob, updateJob, listRegions } from '../jobsStorage';
 import { toLocalInputValue } from '../calendarUtils';
 
 const FormRow = ({ label, required, alignTop, children }) => (
@@ -70,12 +70,13 @@ const buildInitial = (presetDate, job) => {
   };
 };
 
-const CreateJob = ({ open, onClose, onSaved, presetDate, job }) => {
+const CreateJob = ({ open, onClose, onSaved, presetDate, job, categories = [] }) => {
   const editing = !!job;
   const [formData, setFormData] = useState(() => buildInitial(presetDate, job));
   const [errors, setErrors]     = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError]     = useState('');
+  const [regions, setRegions]       = useState([]);
 
   useEffect(() => {
     if (open) {
@@ -84,6 +85,15 @@ const CreateJob = ({ open, onClose, onSaved, presetDate, job }) => {
       setApiError('');
     }
   }, [open, presetDate, job]);
+
+  useEffect(() => {
+    if (!open || regions.length) return;
+    let cancelled = false;
+    listRegions()
+      .then(data => { if (!cancelled) setRegions(data); })
+      .catch(() => { if (!cancelled) setRegions([]); });
+    return () => { cancelled = true; };
+  }, [open, regions.length]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -168,8 +178,16 @@ const CreateJob = ({ open, onClose, onSaved, presetDate, job }) => {
 
           <FormRow label="Category">
             <FormControl size="small" fullWidth>
-              <Select name="category" value={formData.category} onChange={handleChange}>
-                {JOB_CATEGORIES.map(c => (
+              <Select
+                name="category"
+                value={categories.some(c => c.key === formData.category) ? formData.category : ''}
+                onChange={handleChange}
+                displayEmpty
+              >
+                {categories.length === 0 && (
+                  <MenuItem value="" disabled>Loading…</MenuItem>
+                )}
+                {categories.map(c => (
                   <MenuItem key={c.key} value={c.key}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: c.color }} />
@@ -217,14 +235,23 @@ const CreateJob = ({ open, onClose, onSaved, presetDate, job }) => {
           </FormRow>
 
           <FormRow label="Location">
-            <TextField
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              size="small"
-              fullWidth
-              placeholder="e.g. Datacenter Mumbai-1"
-            />
+            <FormControl size="small" fullWidth>
+              <Select
+                name="location"
+                value={formData.location || ''}
+                onChange={handleChange}
+                displayEmpty
+              >
+                <MenuItem value="">
+                  <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
+                    {regions.length === 0 ? 'Loading regions…' : 'None'}
+                  </Typography>
+                </MenuItem>
+                {regions.map(r => (
+                  <MenuItem key={r.id} value={r.name}>{r.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </FormRow>
 
           <FormRow label="Description" alignTop>
