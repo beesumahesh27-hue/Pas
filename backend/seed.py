@@ -1,9 +1,12 @@
+import os
+
+from auth import hash_password
 from database import SessionLocal
 from models import (
     Region, PlatformType, PlatformStatus,
     DiskClass, DiskEncryption,
     Pod, ComplianceTemplate, ComplianceTag,
-    JobCategory,
+    JobCategory, User,
 )
 
 
@@ -54,6 +57,16 @@ def seed():
                 JobCategory(key=k, label=l, color=c, sort_order=i)
                 for i, (k, l, c) in enumerate(categories)
             ])
+
+        admin_email = os.getenv("ADMIN_EMAIL", "admin@place2place.com").lower()
+        admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+        if not db.query(User).filter(User.email == admin_email).first():
+            db.add(User(
+                email=admin_email,
+                name="Administrator",
+                hashed_password=hash_password(admin_password),
+                role="admin",
+            ))
 
         _compliance_tags = [
             "Production", "Development", "Staging", "Critical",
