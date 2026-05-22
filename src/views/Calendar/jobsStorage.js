@@ -2,17 +2,24 @@ import axios from 'axios';
 
 const BASE = '/api/jobs';
 
-export const JOB_CATEGORIES = [
-  { key: 'work',        label: 'Work',         color: '#1976d2' },
-  { key: 'maintenance', label: 'Maintenance',  color: '#fb8c00' },
-  { key: 'deployment',  label: 'Deployment',   color: '#43a047' },
-  { key: 'incident',    label: 'Incident',     color: '#e53935' },
-  { key: 'personal',    label: 'Personal',     color: '#8e24aa' },
-  { key: 'meeting',     label: 'Meeting',      color: '#00897b' },
-];
+let _categoriesCache = [];
+
+export const listJobCategories = async () => {
+  const { data } = await axios.get(`${BASE}/categories`);
+  _categoriesCache = Array.isArray(data) ? data : [];
+  return _categoriesCache;
+};
+
+export const listRegions = async () => {
+  const { data } = await axios.get('/api/regions/');
+  return Array.isArray(data) ? data : [];
+};
 
 export const getCategoryColor = (key) =>
-  JOB_CATEGORIES.find(c => c.key === key)?.color || '#1976d2';
+  _categoriesCache.find(c => c.key === key)?.color || '#1976d2';
+
+export const getCategoryLabel = (key) =>
+  _categoriesCache.find(c => c.key === key)?.label || key;
 
 const fromApi = (j) => ({
   id:          j.id,
@@ -64,13 +71,4 @@ export const jobsBetween = async (startISO, endISO) => {
 export const getJobStats = async () => {
   const { data } = await axios.get(`${BASE}/stats`);
   return data || {};
-};
-
-export const listDueNotifications = async () => {
-  const { data } = await axios.get('/api/notifications/due');
-  return data;
-};
-
-export const dismissNotification = async (id) => {
-  await axios.post(`/api/notifications/${id}/dismiss`);
 };
