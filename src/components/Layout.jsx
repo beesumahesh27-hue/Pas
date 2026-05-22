@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout as logoutAction } from '../store/slices/authSlice';
 import {
   AppBar,
   Avatar,
@@ -47,6 +49,7 @@ import BuildOutlinedIcon              from '@mui/icons-material/BuildOutlined';
 import HubOutlinedIcon                from '@mui/icons-material/HubOutlined';
 import StorefrontOutlinedIcon         from '@mui/icons-material/StorefrontOutlined';
 import ChatBubbleOutlineIcon          from '@mui/icons-material/ChatBubbleOutline';
+import DashboardOutlinedIcon          from '@mui/icons-material/DashboardOutlined';
 
 const RAIL_W = 56;
 
@@ -54,6 +57,7 @@ const NAV_GROUPS = [
   {
     label: 'FAVOURITES',
     items: [
+      { icon: <DashboardOutlinedIcon sx={{ fontSize: 20 }} />,     label: 'Dashboard',    path: '/dashboard' },
       { icon: <CloudOutlinedIcon sx={{ fontSize: 20 }} />,         label: 'Platforms',    path: '/' },
       { icon: <DescriptionOutlinedIcon sx={{ fontSize: 20 }} />,   label: 'Compliances',  path: '/compliances' },
       { icon: <TaskAltOutlinedIcon sx={{ fontSize: 20 }} />,       label: 'Tasks',        path: '/vms' },
@@ -97,6 +101,22 @@ const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen]     = useState(false);
   const navigate  = useNavigate();
   const location  = useLocation();
+  const dispatch  = useDispatch();
+  const user      = useSelector((s) => s.auth.user);
+
+  const initials = (user?.name || user?.email || 'U')
+    .split(' ')
+    .filter(Boolean)
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  const handleSignOut = () => {
+    setProfileAnchor(null);
+    dispatch(logoutAction());
+    navigate('/login', { replace: true });
+  };
 
   const theme = useMemo(() =>
     createTheme({ palette: { mode: darkMode ? 'dark' : 'light' } }),
@@ -410,18 +430,24 @@ const Layout = ({ children }) => {
         >
           <Box sx={{ px: 2.5, pt: 2.5, pb: 2, textAlign: 'center' }}>
             <Avatar sx={{ width: 60, height: 60, bgcolor: '#1976d2', mx: 'auto', mb: 1.25, fontSize: 22, fontWeight: 700 }}>
-              MB
+              {initials}
             </Avatar>
-            <Typography sx={{ fontWeight: 700, fontSize: 15, lineHeight: 1.3 }}>Mahesh Beesu</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
-              <EmailOutlinedIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
-              <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>mahesh.beesu@esds.co.in</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
-              <BadgeOutlinedIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
-              <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>Administrator</Typography>
-            </Box>
-            <Chip label="Admin" size="small" color="primary" variant="outlined" sx={{ mt: 1, height: 22, fontSize: 11 }} />
+            <Typography sx={{ fontWeight: 700, fontSize: 15, lineHeight: 1.3 }}>{user?.name || 'Guest'}</Typography>
+            {user?.email && (
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
+                <EmailOutlinedIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
+                <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>{user.email}</Typography>
+              </Box>
+            )}
+            {user?.role && (
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
+                <BadgeOutlinedIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
+                <Typography sx={{ fontSize: 12, color: 'text.secondary', textTransform: 'capitalize' }}>{user.role}</Typography>
+              </Box>
+            )}
+            {user?.role && (
+              <Chip label={user.role} size="small" color="primary" variant="outlined" sx={{ mt: 1, height: 22, fontSize: 11, textTransform: 'capitalize' }} />
+            )}
           </Box>
 
           <Divider />
@@ -436,7 +462,7 @@ const Layout = ({ children }) => {
               Settings
             </MenuItem>
             <Divider sx={{ my: 0.5 }} />
-            <MenuItem sx={{ borderRadius: 1, gap: 1.5, fontSize: 14, py: 1, color: '#e53935' }} onClick={() => setProfileAnchor(null)}>
+            <MenuItem sx={{ borderRadius: 1, gap: 1.5, fontSize: 14, py: 1, color: '#e53935' }} onClick={handleSignOut}>
               <ListItemIcon sx={{ minWidth: 0 }}><LogoutOutlinedIcon sx={{ fontSize: 18, color: '#e53935' }} /></ListItemIcon>
               Sign Out
             </MenuItem>
