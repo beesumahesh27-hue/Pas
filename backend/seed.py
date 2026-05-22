@@ -3,6 +3,7 @@ from models import (
     Region, PlatformType, PlatformStatus,
     DiskClass, DiskEncryption,
     Pod, ComplianceTemplate, ComplianceTag,
+    JobCategory,
 )
 
 
@@ -39,6 +40,20 @@ def seed():
         ]
         existing_ct = {t.name for t in db.query(ComplianceTemplate).all()}
         db.add_all([ComplianceTemplate(name=n) for n in _compliance_templates if n not in existing_ct])
+
+        if db.query(JobCategory).count() == 0:
+            categories = [
+                ("work",        "Work",         "#1976d2"),
+                ("maintenance", "Maintenance",  "#fb8c00"),
+                ("deployment",  "Deployment",   "#43a047"),
+                ("incident",    "Incident",     "#e53935"),
+                ("personal",    "Personal",     "#8e24aa"),
+                ("meeting",     "Meeting",      "#00897b"),
+            ]
+            db.add_all([
+                JobCategory(key=k, label=l, color=c, sort_order=i)
+                for i, (k, l, c) in enumerate(categories)
+            ])
 
         _compliance_tags = [
             "Production", "Development", "Staging", "Critical",

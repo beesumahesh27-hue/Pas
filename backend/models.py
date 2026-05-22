@@ -122,6 +122,16 @@ class ComplianceTag(Base):
     name = Column(String(100), nullable=False, unique=True)
 
 
+class JobCategory(Base):
+    __tablename__ = "job_categories"
+
+    id    = Column(Integer, primary_key=True, index=True)
+    key   = Column(String(50),  nullable=False, unique=True)
+    label = Column(String(100), nullable=False)
+    color = Column(String(20),  nullable=False)
+    sort_order = Column(Integer, nullable=False, default=0)
+
+
 class Job(Base):
     __tablename__ = "jobs"
 
