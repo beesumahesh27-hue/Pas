@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
-from routers import platforms, regions, options, virtual_machines, compliance, jobs, notifications
+from routers import auth, platforms, regions, options, virtual_machines, compliance, jobs, notifications
 from seed import seed
 
 # Create all tables on startup
@@ -32,6 +32,7 @@ def on_startup():
     except Exception as e:
         print(f"Warning: Startup error: {e}")
 
+app.include_router(auth.router)
 app.include_router(platforms.router)
 app.include_router(regions.router)
 app.include_router(options.router)
