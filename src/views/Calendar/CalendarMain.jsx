@@ -58,9 +58,15 @@ const CalendarMain = () => {
   const refresh = useCallback(async () => {
     setLoadError('');
     try {
-      const [data, statsData] = await Promise.all([listJobs(), getJobStats()]);
+      const [data, statsData, cats] = await Promise.all([
+        listJobs(),
+        getJobStats(),
+        listJobCategories(),
+      ]);
       setJobs(data);
       setStats(statsData);
+      setCategories(cats);
+      setEnabledCats(prev => (prev.length ? prev : cats.map(c => c.key)));
     } catch (err) {
       setLoadError(err.response?.data?.detail || err.message || 'Failed to load jobs');
     } finally {
@@ -71,21 +77,6 @@ const CalendarMain = () => {
   useEffect(() => {
     refresh();
   }, [refresh]);
-
-  const ensureCategoriesLoaded = useCallback(async () => {
-    if (categories.length) return;
-    try {
-      const cats = await listJobCategories();
-      setCategories(cats);
-      setEnabledCats(prev => (prev.length ? prev : cats.map(c => c.key)));
-    } catch {
-      /* silent — sidebar/dropdown will stay empty if this fails */
-    }
-  }, [categories.length]);
-
-  useEffect(() => {
-    if (createOpen) ensureCategoriesLoaded();
-  }, [createOpen, ensureCategoriesLoaded]);
 
   const visibleJobs = useMemo(
     () => jobs.filter(j => enabledCats.includes(j.category || 'work')),
