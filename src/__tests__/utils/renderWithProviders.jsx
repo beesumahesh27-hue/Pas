@@ -5,10 +5,11 @@ import { BrowserRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import uiReducer from '../../store/slices/uiSlice';
 import alertReducer from '../../store/slices/alertSlice';
+import authReducer from '../../store/slices/authSlice';
 
 export function createTestStore(preloadedState = {}) {
   return configureStore({
-    reducer: { ui: uiReducer, alert: alertReducer },
+    reducer: { ui: uiReducer, alert: alertReducer, auth: authReducer },
     preloadedState,
   });
 }
