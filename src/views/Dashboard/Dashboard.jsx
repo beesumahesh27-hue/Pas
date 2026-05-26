@@ -39,7 +39,7 @@ const SERVICES = [
     color: '#7e57c2',
     bg:    '#ede7f6',
     path:  '/vms',
-    countFrom: '/api/virtual_machines/',
+    countFrom: '/api/vms/',
   },
   {
     key:   'compliances',
@@ -49,7 +49,7 @@ const SERVICES = [
     color: '#00897b',
     bg:    '#e0f2f1',
     path:  '/compliances',
-    countFrom: '/api/compliance/',
+    countFrom: '/api/compliance/submissions',
   },
   {
     key:   'calendar',
