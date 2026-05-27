@@ -5,15 +5,12 @@ import {
   Breadcrumbs,
   CircularProgress,
   Grid,
-  IconButton,
   Link,
   Stack,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-import RefreshOutlinedIcon       from '@mui/icons-material/RefreshOutlined';
 import LightbulbOutlinedIcon     from '@mui/icons-material/LightbulbOutlined';
 import StorageOutlinedIcon       from '@mui/icons-material/StorageOutlined';
 import CloudOutlinedIcon         from '@mui/icons-material/CloudOutlined';
@@ -28,6 +25,7 @@ import LineChart          from 'components/charts/LineChart';
 import PieChart           from 'components/charts/PieChart';
 import BarChart           from 'components/charts/BarChart';
 import InsightSummaryCard from './InsightSummaryCard';
+import RefreshButton       from 'components/RefreshButton';
 import { fetchInsightsSummary } from '../../services/insightApi';
 
 // Status → colour map (presentation only; values come from the API).
@@ -146,13 +144,7 @@ const InsightHome = () => {
             Everything created across those modules is reflected here in real time — refresh anytime for the latest.
           </Typography>
         </Box>
-        <Tooltip title="Refresh">
-          <span>
-            <IconButton onClick={load} disabled={loading} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
-              <RefreshOutlinedIcon sx={{ fontSize: 20 }} />
-            </IconButton>
-          </span>
-        </Tooltip>
+        <RefreshButton onClick={load} loading={loading} />
       </Stack>
 
       {error && (
