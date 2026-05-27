@@ -5,8 +5,14 @@ const USER_KEY  = 'pas_user';
 
 const loadInitial = () => {
   try {
-    const token = localStorage.getItem(TOKEN_KEY) || null;
-    const userRaw = localStorage.getItem(USER_KEY);
+    // Drop any session persisted under the old localStorage scheme so existing
+    // users aren't auto-authenticated — they must sign in again on each new
+    // browser session. Auth now lives in sessionStorage (cleared on tab close).
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+
+    const token = sessionStorage.getItem(TOKEN_KEY) || null;
+    const userRaw = sessionStorage.getItem(USER_KEY);
     const user = userRaw ? JSON.parse(userRaw) : null;
     return { token, user };
   } catch {
@@ -35,8 +41,8 @@ const authSlice = createSlice({
       state.loading = false;
       state.error   = null;
       try {
-        localStorage.setItem(TOKEN_KEY, token);
-        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        sessionStorage.setItem(TOKEN_KEY, token);
+        sessionStorage.setItem(USER_KEY, JSON.stringify(user));
       } catch { /* ignore quota / disabled storage */ }
     },
     authFailure: (state, action) => {
@@ -48,14 +54,14 @@ const authSlice = createSlice({
       state.user  = null;
       state.error = null;
       try {
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(USER_KEY);
       } catch { /* ignore */ }
     },
     setUser: (state, action) => {
       state.user = action.payload;
       try {
-        localStorage.setItem(USER_KEY, JSON.stringify(action.payload));
+        sessionStorage.setItem(USER_KEY, JSON.stringify(action.payload));
       } catch { /* ignore */ }
     },
   },

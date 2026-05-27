@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { hideAlert } from './store/slices/alertSlice';
+import useIdleTimeout from './hooks/useIdleTimeout';
 
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -44,6 +45,9 @@ function App() {
   const dispatch = useDispatch();
   const alert = useSelector((state) => state.alert);
   const token = useSelector((state) => state.auth.token);
+
+  // Auto sign-out after 5 minutes of inactivity.
+  useIdleTimeout();
 
   const handleCloseAlert = () => {
     dispatch(hideAlert());
