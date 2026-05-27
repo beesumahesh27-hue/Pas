@@ -53,6 +53,7 @@ const VirtualMachines = () => {
   const [searchInput, setSearchInput]         = useState('');
   const [createMenuAnchor, setCreateMenuAnchor] = useState(null);
   const [createPageOpen, setCreatePageOpen]   = useState(false);
+  const [editTask, setEditTask]               = useState(null);
   const [vms, setVms]                         = useState([]);
   const [loading, setLoading]                 = useState(false);
   const [regions, setRegions]                 = useState([]);
@@ -66,8 +67,13 @@ const VirtualMachines = () => {
   const [rowsPerPage, setRowsPerPage]         = useState(10);
   const [feedbackOpen, setFeedbackOpen]       = useState(false);
 
-  /* Location info banner */
-  const [showLocationInfo, setShowLocationInfo] = useState(!localStorage.getItem(LOCATION_KEY));
+  /* Location info banner — stays visible until BOTH Region and POD are selected */
+  const [showLocationInfo, setShowLocationInfo] = useState(() => {
+    try {
+      const { region, pod } = JSON.parse(localStorage.getItem(LOCATION_KEY) || '{}');
+      return !(region && pod);
+    } catch (_e) { return true; }
+  });
 
   const showBanner = (msg) => {
     setSuccessMsg(msg);
@@ -118,9 +124,10 @@ const VirtualMachines = () => {
     const pod   = saved ? (JSON.parse(saved).pod || '') : podFilter;
     if (val) {
       localStorage.setItem(LOCATION_KEY, JSON.stringify({ region: val, pod }));
-      setShowLocationInfo(false);
+      setShowLocationInfo(!pod);          // hide only when POD is also selected
     } else {
       localStorage.removeItem(LOCATION_KEY);
+      setShowLocationInfo(true);          // region cleared → remind again
     }
   };
 
@@ -128,6 +135,9 @@ const VirtualMachines = () => {
     setPodFilter(val);
     if (regionFilter) {
       localStorage.setItem(LOCATION_KEY, JSON.stringify({ region: regionFilter, pod: val }));
+      setShowLocationInfo(!val);          // hide only when POD is also selected
+    } else {
+      setShowLocationInfo(true);          // no region yet → keep reminding
     }
   };
 
@@ -165,7 +175,7 @@ const VirtualMachines = () => {
     fetchVms(searchInput, val);
   };
 
-  const openCreatePage = () => { setCreateMenuAnchor(null); setCreatePageOpen(true); };
+  const openCreatePage = () => { setCreateMenuAnchor(null); setEditTask(null); setCreatePageOpen(true); };
   const handleRowClick = (vm) => navigate(`/vms/${vm.id}`);
 
   const handleActionClick = (e, row) => { e.stopPropagation(); setActionAnchor(e.currentTarget); setActionRow(row); };
@@ -206,8 +216,15 @@ const VirtualMachines = () => {
     return (
       <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <CreateTask
-          onClose={() => setCreatePageOpen(false)}
-          onCreated={() => { setCreatePageOpen(false); fetchVms('', ''); showBanner('Task created successfully!'); }}
+          editData={editTask}
+          onClose={() => { setCreatePageOpen(false); setEditTask(null); }}
+          onCreated={() => {
+            const wasEdit = Boolean(editTask);
+            setCreatePageOpen(false);
+            setEditTask(null);
+            fetchVms('', '');
+            showBanner(wasEdit ? 'Task updated successfully!' : 'Task created successfully!');
+          }}
         />
       </Box>
     );
@@ -439,7 +456,7 @@ const VirtualMachines = () => {
           <StopIcon sx={{ fontSize: 16, color: '#e53935' }} /> Halt
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleActionClose} sx={{ fontSize: 13 }}>Edit</MenuItem>
+        <MenuItem onClick={() => { setEditTask(actionRow); setActionAnchor(null); setCreatePageOpen(true); }} sx={{ fontSize: 13 }}>Edit</MenuItem>
         <MenuItem onClick={() => handleAction('delete')} sx={{ fontSize: 13, color: '#e53935' }}>Delete</MenuItem>
       </Menu>
 
