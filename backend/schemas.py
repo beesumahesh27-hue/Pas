@@ -161,6 +161,9 @@ class VMUpdate(BaseModel):
     network:         Optional[str] = None
     vlan:            Optional[str] = None
     gateway:         Optional[str] = None
+    template:        Optional[str] = None
+    vm_count:        Optional[int] = None
+    schedule:        Optional[datetime] = None
 
 
 class VMResponse(BaseModel):

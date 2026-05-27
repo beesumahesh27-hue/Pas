@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../../services/api';
 import {
   Alert,
@@ -39,21 +40,21 @@ const TAB_DESCRIPTIONS = {
 const DonutChart = ({ used, free, label }) => {
   const total = used + free;
   const pct   = total === 0 ? 0 : Math.round((used / total) * 100);
-  const r     = 53;
-  const cx = 65; const cy = 65;
+  const r     = 100;
+  const cx = 120; const cy = 120;
   const circ  = 2 * Math.PI * r;
   const offset = circ - (pct / 100) * circ;
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-      <svg width={130} height={130}>
-        <circle cx={cx} cy={cy} r={r} stroke="#e0e0e0" strokeWidth={14} fill="none" />
+      <svg width={240} height={240}>
+        <circle cx={cx} cy={cy} r={r} stroke="#e0e0e0" strokeWidth={19} fill="none" />
         {pct > 0 && (
-          <circle cx={cx} cy={cy} r={r} stroke="#1976d2" strokeWidth={14} fill="none"
+          <circle cx={cx} cy={cy} r={r} stroke="#1976d2" strokeWidth={19} fill="none"
             strokeDasharray={`${circ} ${circ}`} strokeDashoffset={offset}
             transform={`rotate(-90 ${cx} ${cy})`} strokeLinecap="round" />
         )}
-        <text x={cx} y={cy - 8}  textAnchor="middle" dominantBaseline="middle" fontSize="11" fill="#666">{label}</text>
-        <text x={cx} y={cy + 10} textAnchor="middle" dominantBaseline="middle" fontSize="15" fontWeight="600" fill="#333">{pct}%</text>
+        <text x={cx} y={cy - 13} textAnchor="middle" dominantBaseline="middle" fontSize="16" fill="#666">{label}</text>
+        <text x={cx} y={cy + 18} textAnchor="middle" dominantBaseline="middle" fontSize="28" fontWeight="600" fill="#333">{pct}%</text>
       </svg>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignSelf: 'flex-start', pl: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -70,7 +71,7 @@ const DonutChart = ({ used, free, label }) => {
 };
 
 const FieldRow = ({ label, required, tooltip, children }) => (
-  <Box sx={{ display: 'grid', gridTemplateColumns: '160px 1fr', alignItems: 'flex-start', gap: 2, mb: 2.5 }}>
+  <Box sx={{ display: 'grid', gridTemplateColumns: '160px minmax(0, 380px)', alignItems: 'flex-start', gap: 2, mb: 2.5 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, pt: 1 }}>
       <Typography variant="body2" sx={{ fontSize: 13 }}>
         {label}{required && <Box component="span" sx={{ color: '#e53935' }}> *</Box>}
@@ -85,9 +86,20 @@ const FieldRow = ({ label, required, tooltip, children }) => (
   </Box>
 );
 
-const INITIAL = { name: '', additionalName: '', vmCount: 1, schedule: '', template: '', existingTags: '', newTag: '', region: '', pod: '' };
+const INITIAL = { name: '', additionalName: '', vmCount: 1, schedule: '', template: '', status: 'Active', existingTags: '', newTag: '', region: '', pod: '' };
 
-const CreateVMDialog = ({ onClose, onCreated }) => {
+/* ISO datetime → value accepted by <input type="datetime-local"> (YYYY-MM-DDTHH:mm) */
+const toDatetimeLocal = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+const CreateVMDialog = ({ onClose, onCreated, editData }) => {
+  const navigate = useNavigate();
+  const isEdit   = Boolean(editData);
   const [activeTab, setActiveTab]       = useState(0);
   const [formData, setFormData]         = useState(INITIAL);
   const [tags, setTags]                 = useState([]);
@@ -99,15 +111,35 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
   const [pods, setPods]                         = useState([]);
   const [templateOptions, setTemplateOptions]   = useState([]);
   const [existingTagOptions, setExistingTagOptions] = useState([]);
+  const [statusOptions, setStatusOptions]       = useState([]);
 
   useEffect(() => {
     api.get('/compliance/regions').then(({ data }) => setRegions(data.map(r => r.name))).catch(() => {});
     api.get('/compliance/pods').then(({ data }) => setPods(data.map(p => p.name))).catch(() => {});
     api.get('/compliance/templates').then(({ data }) => setTemplateOptions(data.map(t => t.name))).catch(() => {});
     api.get('/compliance/tags').then(({ data }) => setExistingTagOptions(data.map(t => t.name))).catch(() => {});
+    api.get('/compliance/statuses').then(({ data }) => setStatusOptions(data.map(s => s.name))).catch(() => {});
   }, []);
 
-  const hasBasicsError = !formData.name || !formData.schedule || !formData.template;
+  /* Prefill the form when opened in edit mode */
+  useEffect(() => {
+    if (!editData) return;
+    setFormData({
+      name:           editData.vm_name        || '',
+      additionalName: editData.additional_name || '',
+      vmCount:        editData.vm_count        ?? 1,
+      schedule:       toDatetimeLocal(editData.schedule),
+      template:       editData.template        || '',
+      status:         editData.power_state === 'Running' ? 'Active' : 'Inactive',
+      existingTags:   '',
+      newTag:         '',
+      region:         editData.region          || '',
+      pod:            editData.cloud_pod        || '',
+    });
+    setTags(editData.tags ? editData.tags.split(',').map(t => t.trim()).filter(Boolean) : []);
+  }, [editData]);
+
+  const hasBasicsError = isEdit ? !formData.name : (!formData.name || !formData.schedule || !formData.template);
 
   const handleChange = (field) => (e) => {
     setFormData(prev => ({ ...prev, [field]: e.target.value }));
@@ -125,31 +157,38 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
   const handleNext = () => { if (activeTab < TABS.length - 1) setActiveTab(p => p + 1); };
   const handlePrev = () => { if (activeTab > 0) setActiveTab(p => p - 1); };
 
-  const handleCreate = async () => {
+  const handleSubmit = async () => {
     const errs = {};
-    if (!formData.name)     errs.name     = 'Name is required';
-    if (!formData.schedule) errs.schedule = 'Schedule is required';
-    if (!formData.template) errs.template = 'Template is required';
+    if (!formData.name) errs.name = 'Name is required';
+    if (!isEdit) {
+      if (!formData.schedule) errs.schedule = 'Schedule is required';
+      if (!formData.template) errs.template = 'Template is required';
+    }
     if (Object.keys(errs).length) { setErrors(errs); setActiveTab(0); return; }
 
     setSubmitting(true);
     setApiError('');
     try {
-      await api.post('/vms/', {
+      const payload = {
         vm_name:         formData.name,
         additional_name: formData.additionalName || null,
         vm_count:        parseInt(formData.vmCount) || 1,
         schedule:        formData.schedule || null,
-        template:        formData.template,
+        template:        formData.template || null,
         region:          formData.region || null,
         cloud_pod:       formData.pod || 'Default_POD',
         tags:            tags.join(',') || null,
-        power_state:     'Halted',
-      });
+        power_state:     formData.status === 'Active' ? 'Running' : 'Halted',
+      };
+      if (isEdit) {
+        await api.put(`/vms/${editData.id}`, payload);
+      } else {
+        await api.post('/vms/', payload);
+      }
       setFormData(INITIAL); setTags([]); setErrors({}); setActiveTab(0);
       onCreated?.(); onClose?.();
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Failed to create. Please try again.';
+      const msg = err.response?.data?.detail || `Failed to ${isEdit ? 'update' : 'create'}. Please try again.`;
       setApiError(typeof msg === 'string' ? msg : JSON.stringify(msg));
     } finally {
       setSubmitting(false);
@@ -164,7 +203,7 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
 
   /* ── Tab content renderers ── */
   const renderBasics = () => (
-    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 3 }}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 540px) 1fr', gap: 3 }}>
       <Box>
         <Typography sx={{ color: '#1976d2', fontWeight: 600, mb: 2.5, fontSize: 14 }}>
           Instance Details
@@ -208,14 +247,17 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
           </Box>
         </FieldRow>
 
-        <FieldRow label="Resources" required tooltip="Allocate CPU, RAM, and disk">
-          <Typography component="span" sx={{ fontSize: 14, color: '#1976d2', fontWeight: 500, cursor: 'pointer', pt: 0.5, display: 'block' }}>
-            Configure Resources
-          </Typography>
+        <FieldRow label="Status" required tooltip="Set the policy status">
+          <FormControl size="small" fullWidth>
+            <Select value={formData.status} onChange={handleChange('status')}
+              displayEmpty renderValue={v => v || <Box component="span" sx={{ color: '#9ca3af' }}>Select Status</Box>}>
+              {statusOptions.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+            </Select>
+          </FormControl>
         </FieldRow>
       </Box>
 
-      <Box sx={{ pt: 5, pr: 1 }}>
+      <Box sx={{ pt: 4, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
         <DonutChart used={parseInt(formData.vmCount) || 0} free={100 - (parseInt(formData.vmCount) || 0)} label="VM Count" />
       </Box>
     </Box>
@@ -251,19 +293,18 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
 
   const renderAdvanced = () => (
     <Box>
-      <Typography sx={{ color: '#1976d2', fontWeight: 600, mb: 3, fontSize: 14 }}>Add Tags</Typography>
+      <Typography sx={{ color: '#1976d2', fontWeight: 600, mb: 2.5, fontSize: 14 }}>Add Tags</Typography>
       <FieldRow label="Existing Tags" tooltip="Associate previously created tags">
-        <FormControl size="small" sx={{ maxWidth: 340, width: '100%' }}>
+        <FormControl size="small" fullWidth>
           <Select value={formData.existingTags} onChange={handleChange('existingTags')}
-            displayEmpty renderValue={v => v || <Box component="span" sx={{ color: '#9ca3af' }}>Select Tags</Box>}
-            sx={{ fontSize: 13 }}>
+            displayEmpty renderValue={v => v || <Box component="span" sx={{ color: '#9ca3af' }}>Select Tags</Box>}>
             <MenuItem value="">Select Tags</MenuItem>
             {existingTagOptions.map(t => <MenuItem key={t} value={t}>{t}</MenuItem>)}
           </Select>
         </FormControl>
       </FieldRow>
       <FieldRow label="New Tags" tooltip="Create and attach a new tag">
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, maxWidth: 360 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TextField size="small" placeholder="Please add tag name"
             value={formData.newTag} onChange={handleChange('newTag')}
             onKeyDown={e => e.key === 'Enter' && handleAddTag()} sx={{ flex: 1 }} />
@@ -274,7 +315,7 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
         </Box>
       </FieldRow>
       {tags.length > 0 && (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1, ml: '186px' }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1, ml: '176px' }}>
           {tags.map(t => (
             <Box key={t} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: '#e3f2fd', border: '1px solid #90caf9', borderRadius: 1, px: 1, py: 0.25, fontSize: 12 }}>
               <Typography variant="caption">{t}</Typography>
@@ -304,6 +345,7 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
         { label: 'VM Count',       value: formData.vmCount },
         { label: 'Schedule',       value: formData.schedule ? new Date(formData.schedule).toLocaleString() : '—' },
         { label: 'Template',       value: formData.template || '—' },
+        { label: 'Status',         value: formData.status || '—' },
         { label: 'Region',         value: formData.region || '—' },
         { label: 'POD',            value: formData.pod || '—' },
         { label: 'Tags',           value: tags.join(', ') || '—' },
@@ -327,12 +369,19 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
           <Typography
             sx={{ fontSize: 13, color: '#1976d2', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-            onClick={handleClose}
+            onClick={() => navigate('/')}
           >
-            Compliance Policy
+            Home
           </Typography>
           <Typography sx={{ fontSize: 13, color: '#9e9e9e' }}>&gt;</Typography>
-          <Typography sx={{ fontSize: 13, color: '#757575' }}>Create</Typography>
+          <Typography
+            sx={{ fontSize: 13, color: '#1976d2', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            onClick={handleClose}
+          >
+            Task
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: '#9e9e9e' }}>&gt;</Typography>
+          <Typography sx={{ fontSize: 13, color: '#757575' }}>{isEdit ? 'Edit Task' : 'Create Task'}</Typography>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
@@ -342,7 +391,7 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
             </IconButton>
             <ComputerOutlinedIcon sx={{ color: '#1976d2', fontSize: 26 }} />
             <Typography variant="h6" sx={{ fontWeight: 600, fontSize: 18 }}>
-              Create Compliance Policy
+              {isEdit ? 'Edit Task' : 'Create Task'}
             </Typography>
           </Box>
         </Box>
@@ -394,11 +443,15 @@ const CreateVMDialog = ({ onClose, onCreated }) => {
           Next &gt;
         </Button>
         <Button variant="contained" color="primary" size="small"
-          onClick={activeTab === TABS.length - 1 ? handleCreate : () => setActiveTab(TABS.length - 1)}
+          onClick={isEdit
+            ? handleSubmit
+            : (activeTab === TABS.length - 1 ? handleSubmit : () => setActiveTab(TABS.length - 1))}
           disabled={submitting}
           startIcon={submitting ? <CircularProgress size={13} color="inherit" /> : null}
           sx={{ textTransform: 'none', fontSize: 13 }}>
-          {submitting ? 'Creating…' : 'Review + Create'}
+          {submitting
+            ? (isEdit ? 'Updating…' : 'Creating…')
+            : (isEdit ? 'Update' : 'Review + Create')}
         </Button>
         <Button variant="outlined" size="small" onClick={handleClose}
           sx={{ textTransform: 'none', fontSize: 13, ml: 1 }}>
