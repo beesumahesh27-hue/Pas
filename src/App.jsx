@@ -31,6 +31,9 @@ import VMScaleConfig from './views/VirtualMachines/tabs/VMScaleConfig';
 // Calendar module
 import CalendarMain from './views/Calendar/CalendarMain';
 
+// Insights module
+import InsightHome from './views/Insight/InsightHome';
+
 const ProtectedShell = ({ children }) => (
   <ProtectedRoute>
     <Layout>{children}</Layout>
@@ -59,6 +62,7 @@ function App() {
         <Route path="/compliances"       element={<ProtectedShell><ComplianceList /></ProtectedShell>} />
         <Route path="/compliances/create" element={<ProtectedShell><ComplianceService /></ProtectedShell>} />
         <Route path="/calendar"          element={<ProtectedShell><CalendarMain /></ProtectedShell>} />
+        <Route path="/insights"          element={<ProtectedShell><InsightHome /></ProtectedShell>} />
 
         <Route path="/:id" element={<ProtectedShell><OverviewMain /></ProtectedShell>}>
           <Route path="overview"  element={<Overview />} />

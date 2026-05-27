@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
-from routers import auth, platforms, regions, options, virtual_machines, compliance, jobs, notifications
+from routers import auth, platforms, regions, options, virtual_machines, compliance, jobs, notifications, insights
 from seed import seed
 
 # Create all tables on startup
@@ -40,6 +40,7 @@ app.include_router(virtual_machines.router)
 app.include_router(compliance.router)
 app.include_router(jobs.router)
 app.include_router(notifications.router)
+app.include_router(insights.router)
 
 
 @app.get("/", tags=["root"])

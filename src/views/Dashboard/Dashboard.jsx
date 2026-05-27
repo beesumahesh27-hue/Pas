@@ -18,6 +18,7 @@ import CloudOutlinedIcon         from '@mui/icons-material/CloudOutlined';
 import StorageOutlinedIcon       from '@mui/icons-material/StorageOutlined';
 import DescriptionOutlinedIcon   from '@mui/icons-material/DescriptionOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
+import LightbulbOutlinedIcon     from '@mui/icons-material/LightbulbOutlined';
 import ArrowForwardOutlinedIcon  from '@mui/icons-material/ArrowForwardOutlined';
 
 const SERVICES = [
@@ -60,6 +61,16 @@ const SERVICES = [
     bg:    '#fff3e0',
     path:  '/calendar',
     countFrom: '/api/jobs/',
+  },
+  {
+    key:   'insights',
+    title: 'Insights',
+    desc:  'Visualize utilization, status and trends across services.',
+    icon:  <LightbulbOutlinedIcon sx={{ fontSize: 30 }} />,
+    color: '#f9a825',
+    bg:    '#fff8e1',
+    path:  '/insights',
+    countFrom: '/api/insights/summary',
   },
 ];
 
