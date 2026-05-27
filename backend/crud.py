@@ -1,5 +1,8 @@
 from sqlalchemy.orm import Session
-from models import Platform, Instance, VirtualMachine, VMDisk, Job, JobNotification
+from models import (
+    Platform, Instance, VirtualMachine, VMDisk, Job, JobNotification,
+    CompliancePolicySubmission,
+)
 from schemas import PlatformCreate, PlatformUpdate, JobCreate, JobUpdate
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -233,3 +236,108 @@ def get_job_stats(db: Session):
           .all()
     )
     return {category: count for category, count in rows}
+
+
+# ── Insights / Analytics ─────────────────────────────────────────────────────
+
+def _as_aware(dt: Optional[datetime]) -> Optional[datetime]:
+    """Normalise to a timezone-aware UTC datetime for safe comparison."""
+    if dt is None:
+        return None
+    return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt
+
+
+def _pct(part: int, whole: int) -> float:
+    return round(part / whole * 100, 1) if whole else 0.0
+
+
+def get_insights_summary(db: Session) -> dict:
+    """Aggregate live counts for the Insights home page.
+
+    Returns per-component metrics (total, running/active, utilization %, and a
+    full status breakdown) for VMs, platforms, compliance and jobs. Everything
+    is computed from the database — no static data.
+    """
+    # ── Virtual Machines ──────────────────────────────────────────────
+    vms = db.query(VirtualMachine).all()
+    vm_total = len(vms)
+    vm_status: dict = {}
+    cpu_alloc = ram_alloc = disk_alloc = 0
+    for vm in vms:
+        state = vm.power_state or "Unknown"
+        vm_status[state] = vm_status.get(state, 0) + 1
+        count = vm.vm_count or 1
+        cpu_alloc += (vm.max_cpu or 0) * count
+        ram_alloc += (vm.max_ram or 0) * count
+        disk_alloc += (vm.total_disk_size or 0) * count
+    vm_running = vm_status.get("Running", 0)
+
+    # 7-day cumulative VM count — "day" is the x-axis unit on the Insights graph.
+    today = datetime.now(timezone.utc).date()
+    window = [today - timedelta(days=i) for i in range(6, -1, -1)]
+    vm_dates = [_as_aware(vm.created_at).date() for vm in vms if vm.created_at]
+    vm_trend = [
+        {"label": d.strftime("%d %b"), "value": sum(1 for vd in vm_dates if vd <= d)}
+        for d in window
+    ]
+
+    # ── Platforms ─────────────────────────────────────────────────────
+    platforms = db.query(Platform).all()
+    platform_total = len(platforms)
+    platform_status: dict = {}
+    for p in platforms:
+        platform_status[p.status] = platform_status.get(p.status, 0) + 1
+    platform_active = platform_status.get("Active", 0)
+
+    # ── Compliance (coverage across platforms) ────────────────────────
+    submissions = db.query(CompliancePolicySubmission).all()
+    compliance_total = len(submissions)
+    covered = len({s.platform_id for s in submissions})
+    not_covered = max(platform_total - covered, 0)
+
+    # ── Jobs ──────────────────────────────────────────────────────────
+    jobs = db.query(Job).all()
+    job_total = len(jobs)
+    now = datetime.now(timezone.utc)
+    job_status = {"Upcoming": 0, "Ongoing": 0, "Completed": 0}
+    job_categories: dict = {}
+    for j in jobs:
+        start, end = _as_aware(j.start), _as_aware(j.end)
+        if end and end < now:
+            job_status["Completed"] += 1
+        elif start and start > now:
+            job_status["Upcoming"] += 1
+        else:
+            job_status["Ongoing"] += 1
+        job_categories[j.category] = job_categories.get(j.category, 0) + 1
+    job_active = job_status["Upcoming"] + job_status["Ongoing"]
+
+    return {
+        "vms": {
+            "total": vm_total,
+            "running": vm_running,
+            "utilization": _pct(vm_running, vm_total),
+            "status": vm_status,
+            "resources": {"cpu": cpu_alloc, "ram": ram_alloc, "disk": disk_alloc},
+            "trend": vm_trend,
+        },
+        "platforms": {
+            "total": platform_total,
+            "running": platform_active,
+            "utilization": _pct(platform_active, platform_total),
+            "status": platform_status,
+        },
+        "compliance": {
+            "total": compliance_total,
+            "running": covered,
+            "utilization": _pct(covered, platform_total),
+            "status": {"Covered": covered, "Not Covered": not_covered},
+        },
+        "jobs": {
+            "total": job_total,
+            "running": job_active,
+            "utilization": _pct(job_active, job_total),
+            "status": job_status,
+            "categories": job_categories,
+        },
+    }
