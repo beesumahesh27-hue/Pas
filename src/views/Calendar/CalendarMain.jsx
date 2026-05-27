@@ -161,10 +161,10 @@ const CalendarMain = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#f5f7fa' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: 'background.default' }}>
       {/* Breadcrumb */}
       <Box sx={{ px: 3, pt: 2 }}>
-        <Breadcrumbs sx={{ fontSize: 13 }}>
+        <Breadcrumbs separator="›" sx={{ fontSize: 13 }}>
           <Link
             component="button"
             type="button"
