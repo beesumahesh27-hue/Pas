@@ -6,7 +6,7 @@ import VMDataTable from '../../components/VMDataTable';
 describe('VMDataTable', () => {
   it('renders without crashing with empty rows', () => {
     render(
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <VMDataTable rows={[]} />
       </MemoryRouter>
     );
@@ -16,7 +16,7 @@ describe('VMDataTable', () => {
   it('renders rows when provided', () => {
     const rows = [{ id: 1, vmName: 'test-vm', powerState: 'Running', vmUuid: 'abc', primaryIp: '1.1.1.1', guestOs: 'Ubuntu' }];
     render(
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <VMDataTable rows={rows} />
       </MemoryRouter>
     );
