@@ -251,7 +251,13 @@ const PlatformList = () => {
 
         {/* ── Breadcrumb ── */}
         <Breadcrumbs separator="›" sx={{ mb: 1.5, fontSize: 13 }}>
-          <Link href="/" underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500 }}>Home</Link>
+          <Link
+            underline="hover"
+            onClick={() => navigate('/dashboard')}
+            sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, cursor: 'pointer' }}
+          >
+            Home
+          </Link>
           <Typography sx={{ fontSize: 13, color: 'text.disabled' }}>Platform as a Service</Typography>
         </Breadcrumbs>
 

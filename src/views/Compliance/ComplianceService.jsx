@@ -137,8 +137,21 @@ const ComplianceService = () => {
 
       {/* ── Header ── */}
       <Box sx={{ px: 3, pt: 2.5, pb: 1.5, bgcolor: 'background.paper', borderBottom: '1px solid', borderColor: 'divider' }}>
+        {/* Success banner sits at the top of the header, in the breadcrumb row. */}
+        {successMsg && (
+          <Alert severity="success" sx={{ mb: 1, borderRadius: 1, py: 0.5 }}>
+            {successMsg} Redirecting…
+          </Alert>
+        )}
+
         <Breadcrumbs separator="›" sx={{ mb: 1, fontSize: 13 }}>
-          <Link href="/" underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500 }}>Home</Link>
+          <Link
+            underline="hover"
+            onClick={() => navigate('/dashboard')}
+            sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, cursor: 'pointer' }}
+          >
+            Home
+          </Link>
           <Link
             underline="hover"
             sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, cursor: 'pointer' }}
@@ -149,16 +162,18 @@ const ComplianceService = () => {
           <Typography sx={{ fontSize: 13, color: 'text.disabled' }}>Create</Typography>
         </Breadcrumbs>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <VerifiedUserOutlinedIcon sx={{ fontSize: 30, color: '#1976d2' }} />
+            <Typography variant="h5" fontWeight={700}>Create Compliance Policy</Typography>
+          </Box>
           <Button
             startIcon={<ArrowBackOutlinedIcon />}
             onClick={() => navigate('/compliances')}
-            sx={{ textTransform: 'none', color: '#424242', minWidth: 0, mr: 1 }}
+            sx={{ textTransform: 'none', color: '#424242' }}
           >
             Back
           </Button>
-          <VerifiedUserOutlinedIcon sx={{ fontSize: 30, color: '#1976d2' }} />
-          <Typography variant="h5" fontWeight={700}>Create Compliance Policy</Typography>
         </Box>
       </Box>
 
@@ -168,11 +183,6 @@ const ComplianceService = () => {
         {apiError && (
           <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }} onClose={() => setApiError('')}>
             {apiError}
-          </Alert>
-        )}
-        {successMsg && (
-          <Alert severity="success" sx={{ mb: 2.5, borderRadius: 2 }}>
-            {successMsg} Redirecting…
           </Alert>
         )}
 
