@@ -38,7 +38,14 @@ def signup(payload: schemas.UserSignup, db: Session = Depends(get_db)):
 @router.post("/login", response_model=schemas.TokenResponse)
 def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == payload.email.lower()).first()
-    if not user or not verify_password(payload.password, user.hashed_password):
+    # Email is not registered -> tell the user to sign up first.
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="This email is not registered. Please sign up to create an account.",
+        )
+    # Registered, but the password doesn't match.
+    if not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     return {
         "access_token": create_access_token(subject=str(user.id)),
