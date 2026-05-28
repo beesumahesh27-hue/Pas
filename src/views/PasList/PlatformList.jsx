@@ -52,6 +52,8 @@ import LocationOnOutlinedIcon   from '@mui/icons-material/LocationOnOutlined';
 import api from '../../services/api';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useSelector } from 'react-redux';
+import { drawPdfHeader, buildCsvHeader, escapeCsvCell } from '../../services/pdfHeader';
 import CreatePas      from './PasActions/CreatePas';
 import EditPas        from './PasActions/EditPas';
 import FeedbackDialog from '../PasOverview/Tasks/FeedbackDialog';
@@ -67,6 +69,7 @@ const LOCATION_KEY = 'pas_current_location';
 
 const PlatformList = () => {
   const navigate = useNavigate();
+  const user     = useSelector((s) => s.auth.user);
 
   const [page, setPage]               = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -201,21 +204,21 @@ const PlatformList = () => {
 
   const handleExportCSV = () => {
     setExportAnchor(null);
-    const header = exportColumns.join(',');
-    const rows   = exportRows.map(r => r.map(v => `"${v ?? ''}"`).join(',')).join('\n');
-    const blob   = new Blob([`${header}\n${rows}`], { type: 'text/csv' });
-    const url    = URL.createObjectURL(blob);
-    const a      = document.createElement('a'); a.href = url; a.download = 'platforms.csv'; a.click();
+    const preamble = buildCsvHeader('Platform as a Service', user);
+    const header   = exportColumns.join(',');
+    const rows     = exportRows.map(r => r.map(escapeCsvCell).join(',')).join('\n');
+    const blob     = new Blob([`${preamble}${header}\n${rows}`], { type: 'text/csv' });
+    const url      = URL.createObjectURL(blob);
+    const a        = document.createElement('a'); a.href = url; a.download = 'platforms.csv'; a.click();
     URL.revokeObjectURL(url);
   };
 
   const handleExportPDF = () => {
     setExportAnchor(null);
     const doc = new jsPDF({ orientation: 'landscape' });
-    doc.setFontSize(14);
-    doc.text('Platform as a Service', 14, 15);
+    const startY = drawPdfHeader(doc, 'Platform as a Service', user);
     autoTable(doc, {
-      startY: 22,
+      startY,
       head: [exportColumns],
       body: exportRows,
       styles: { fontSize: 9 },
