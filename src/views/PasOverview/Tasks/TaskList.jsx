@@ -32,8 +32,10 @@ import ComputerOutlinedIcon       from '@mui/icons-material/ComputerOutlined';
 import FileDownloadOutlinedIcon   from '@mui/icons-material/FileDownloadOutlined';
 import LocationOnOutlinedIcon     from '@mui/icons-material/LocationOnOutlined';
 import { useNavigate }            from 'react-router-dom';
+import { useSelector }            from 'react-redux';
 import { jsPDF }                  from 'jspdf';
 import autoTable                  from 'jspdf-autotable';
+import { drawPdfHeader, buildCsvHeader, escapeCsvCell } from '../../../services/pdfHeader';
 
 import StatCard     from '../../../components/StatCard';
 import VMDataTable  from '../../../components/VMDataTable';
@@ -45,6 +47,7 @@ const LOCATION_KEY = 'compliance_current_location';
 
 const VirtualMachines = () => {
   const navigate = useNavigate();
+  const user     = useSelector((s) => s.auth.user);
   const [viewMode, setViewMode]               = useState('list');
   const [searchValue, setSearchValue]         = useState(''); // eslint-disable-line no-unused-vars
   const [regionFilter, setRegionFilter]       = useState('');
@@ -195,20 +198,20 @@ const VirtualMachines = () => {
 
   const handleExportCSV = () => {
     setExportAnchor(null);
-    const header = exportCols.join(',');
-    const rows   = exportData.map(r => r.map(v => `"${v ?? ''}"`).join(',')).join('\n');
-    const blob   = new Blob([`${header}\n${rows}`], { type: 'text/csv' });
-    const url    = URL.createObjectURL(blob);
-    const a      = document.createElement('a'); a.href = url; a.download = 'tasks.csv'; a.click();
+    const preamble = buildCsvHeader('Task', user);
+    const header   = exportCols.join(',');
+    const rows     = exportData.map(r => r.map(escapeCsvCell).join(',')).join('\n');
+    const blob     = new Blob([`${preamble}${header}\n${rows}`], { type: 'text/csv' });
+    const url      = URL.createObjectURL(blob);
+    const a        = document.createElement('a'); a.href = url; a.download = 'tasks.csv'; a.click();
     URL.revokeObjectURL(url);
   };
 
   const handleExportPDF = () => {
     setExportAnchor(null);
     const doc = new jsPDF({ orientation: 'landscape' });
-    doc.setFontSize(14);
-    doc.text('Task', 14, 15);
-    autoTable(doc, { startY: 22, head: [exportCols], body: exportData, styles: { fontSize: 8 }, headStyles: { fillColor: [25, 118, 210] } });
+    const startY = drawPdfHeader(doc, 'Task', user);
+    autoTable(doc, { startY, head: [exportCols], body: exportData, styles: { fontSize: 8 }, headStyles: { fillColor: [25, 118, 210] } });
     doc.save('tasks.pdf');
   };
 
