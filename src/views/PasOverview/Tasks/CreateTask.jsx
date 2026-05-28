@@ -369,7 +369,7 @@ const CreateVMDialog = ({ onClose, onCreated, editData }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
           <Typography
             sx={{ fontSize: 13, color: '#1976d2', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
           >
             Home
           </Typography>
