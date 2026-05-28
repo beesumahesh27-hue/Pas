@@ -169,7 +169,7 @@ const CalendarMain = () => {
             component="button"
             type="button"
             underline="hover"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             sx={{
               fontSize: 13,
               color: 'primary.main',
