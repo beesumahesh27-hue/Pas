@@ -255,7 +255,13 @@ const VirtualMachines = () => {
 
       {/* Breadcrumb */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.75 }}>
-        <Link href="/" underline="hover" sx={{ color: '#1976d2', fontSize: 13 }}>Home</Link>
+        <Link
+          underline="hover"
+          onClick={() => navigate('/dashboard')}
+          sx={{ color: '#1976d2', fontSize: 13, cursor: 'pointer' }}
+        >
+          Home
+        </Link>
         <Typography sx={{ fontSize: 13, color: '#9e9e9e' }}>&gt;</Typography>
         <Typography sx={{ fontSize: 13, color: '#757575' }}>Task</Typography>
       </Box>
