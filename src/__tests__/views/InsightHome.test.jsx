@@ -29,7 +29,7 @@ import InsightHome from '../../views/Insight/InsightHome';
 
 const renderPage = () =>
   render(
-    <MemoryRouter>
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <InsightHome />
     </MemoryRouter>,
   );
@@ -52,7 +52,7 @@ describe('InsightHome', () => {
   it('renders under a dark theme without breaking', async () => {
     render(
       <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
-        <MemoryRouter>
+        <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <InsightHome />
         </MemoryRouter>
       </ThemeProvider>,

@@ -18,7 +18,10 @@ beforeEach(() => {
 describe('Overview', () => {
   it('renders without crashing', () => {
     render(
-      <MemoryRouter initialEntries={['/test-platform']}>
+      <MemoryRouter
+        initialEntries={['/test-platform']}
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <Routes>
           <Route path="/:pasId/*" element={<Overview />} />
         </Routes>
@@ -28,7 +31,10 @@ describe('Overview', () => {
 
   it('shows the platform overview heading', () => {
     render(
-      <MemoryRouter initialEntries={['/test-platform']}>
+      <MemoryRouter
+        initialEntries={['/test-platform']}
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <Routes>
           <Route path="/:pasId/*" element={<Overview />} />
         </Routes>
