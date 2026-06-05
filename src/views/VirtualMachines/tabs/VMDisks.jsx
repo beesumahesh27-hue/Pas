@@ -29,6 +29,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useOutletContext } from 'react-router-dom';
 import api from '../../../services/api';
+import PaginationBar from '../../../components/PaginationBar';
 
 const COLUMNS = [
   { key: 'disk_name',    label: 'Disk' },
@@ -223,7 +224,7 @@ const VMDisks = () => {
   const [search, setSearch]           = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [page, setPage]               = useState(0);
+  const [page, setPage]               = useState(1);
   const [drawerOpen, setDrawerOpen]   = useState(false);
   const [editDisk, setEditDisk]       = useState(null);
   const [menuAnchor, setMenuAnchor]   = useState(null);
@@ -265,8 +266,8 @@ const VMDisks = () => {
   };
 
   const totalRecords = disks.length;
-  const paginated    = disks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  const totalPages   = Math.ceil(totalRecords / rowsPerPage);
+  const totalPages   = Math.max(1, Math.ceil(totalRecords / rowsPerPage));
+  const paginated    = disks.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 
   return (
     <Box sx={{ p: 2.5 }}>
@@ -372,18 +373,13 @@ const VMDisks = () => {
 
       {/* Pagination */}
       {totalRecords > 0 && (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 2, mt: 1.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Button size="small" disabled={page === 0} onClick={() => setPage(p => p - 1)} sx={{ minWidth: 30, fontSize: 13 }}>&lt;</Button>
-            <Typography sx={{ fontSize: 13 }}>{page + 1} / {totalPages || 1}</Typography>
-            <Button size="small" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} sx={{ minWidth: 30, fontSize: 13 }}>&gt;</Button>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography sx={{ fontSize: 13, color: '#757575' }}>Rows per page:</Typography>
-            <Select value={rowsPerPage} onChange={(e) => { setRowsPerPage(Number(e.target.value)); setPage(0); }} size="small" sx={{ fontSize: 13, height: 30, minWidth: 60 }}>
-              {[5, 10, 25, 50].map(n => <MenuItem key={n} value={n}>{n}</MenuItem>)}
-            </Select>
-          </Box>
+        <Box sx={{ mt: 1.5 }}>
+          <PaginationBar
+            page={page} totalPages={totalPages}
+            rowsPerPage={rowsPerPage} rowsPerPageOptions={[5, 10, 25, 50]}
+            onPageChange={setPage}
+            onRowsPerPageChange={(n) => { setRowsPerPage(n); setPage(1); }}
+          />
         </Box>
       )}
 

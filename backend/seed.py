@@ -7,6 +7,7 @@ from models import (
     DiskClass, DiskEncryption,
     Pod, ComplianceTemplate, ComplianceTag,
     JobCategory, User,
+    ResourceGroup, RecycleResource, DropdownOption,
 )
 
 
@@ -74,6 +75,80 @@ def seed():
         ]
         existing_cg = {t.name for t in db.query(ComplianceTag).all()}
         db.add_all([ComplianceTag(name=n) for n in _compliance_tags if n not in existing_cg])
+
+        if db.query(DropdownOption).count() == 0:
+            dropdown_data = [
+                ("subscription",     ["Free Trial", "Pay-As-You-Go", "Enterprise"]),
+                ("location",         ["East US", "West US", "Central US", "North Europe", "West Europe", "South India", "Central India"]),
+                ("resource_type",    ["Application Insights", "Function App", "Storage account"]),
+                ("resource_status",  ["Running", "Stopped"]),
+                ("function_trigger", ["HTTP", "Timer", "Queue", "Blob", "Event Grid", "Service Bus"]),
+                ("function_language",["Python", "Node.js", "C#", "Java", "PowerShell"]),
+                ("function_status",  ["Enabled", "Disabled"]),
+            ]
+            for category, values in dropdown_data:
+                for i, value in enumerate(values):
+                    db.add(DropdownOption(category=category, value=value, sort_order=i))
+
+        if db.query(ResourceGroup).count() == 0:
+            seed_groups = [
+                {
+                    "name": "abhi-azure-functions-rg-590222372",
+                    "subscription": "Free Trial",
+                    "subscription_id": "fe4a1fdb-6a1c-4a6d-a6b0-dbb12f6a00f8",
+                    "location": "East US",
+                    "resources": [
+                        {
+                            "name": "abhi-serverless-python-function-590222372",
+                            "type": "Application Insights",
+                            "location": "East US",
+                            "url": "https://abhi-serverless-python-function-590222372.azurewebsites.net",
+                            "os": "Windows",
+                        },
+                        {
+                            "name": "abhi-serverless-python-function-590222372",
+                            "type": "Function App",
+                            "location": "East US",
+                            "runtime_version": "4.30.0.0",
+                            "url": "https://abhi-serverless-python-function-590222372.azurewebsites.net",
+                            "os": "Windows",
+                        },
+                        {
+                            "name": "abhi590222372",
+                            "type": "Storage account",
+                            "location": "East US",
+                            "os": "Linux",
+                        },
+                    ],
+                },
+                {
+                    "name": "DefaultResourceGroup-EUS",
+                    "subscription": "Free Trial",
+                    "subscription_id": "fe4a1fdb-6a1c-4a6d-a6b0-dbb12f6a00f8",
+                    "location": "East US",
+                    "resources": [],
+                },
+            ]
+            for g in seed_groups:
+                grp = ResourceGroup(
+                    name=g["name"],
+                    subscription=g["subscription"],
+                    subscription_id=g.get("subscription_id"),
+                    location=g["location"],
+                )
+                db.add(grp)
+                db.flush()
+                for r in g["resources"]:
+                    db.add(RecycleResource(
+                        resource_group_id=grp.id,
+                        name=r["name"],
+                        type=r["type"],
+                        location=r["location"],
+                        status="Running",
+                        runtime_version=r.get("runtime_version"),
+                        url=r.get("url"),
+                        os=r.get("os"),
+                    ))
 
         db.commit()
         print("Database seeded successfully.")
