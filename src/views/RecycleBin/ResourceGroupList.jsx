@@ -161,7 +161,7 @@ const ResourceGroupList = () => {
 
         {/* ── Breadcrumb ── */}
         <Breadcrumbs separator="›" sx={{ mb: 1.5, fontSize: 13 }}>
-          <Link href="/" underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500 }}>Home</Link>
+          <Link component="button" onClick={() => navigate('/dashboard')} underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}>Home</Link>
           <Typography sx={{ fontSize: 13, color: 'text.disabled' }}>Resource groups</Typography>
         </Breadcrumbs>
 

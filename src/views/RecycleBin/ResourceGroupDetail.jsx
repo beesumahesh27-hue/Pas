@@ -219,8 +219,8 @@ const ResourceGroupDetail = () => {
       {/* ── Top breadcrumb bar ── */}
       <Box sx={{ px: 3, pt: 2, pb: 1, bgcolor: 'background.paper' }}>
         <Breadcrumbs separator="›" sx={{ fontSize: 13 }}>
-          <Link href="/" underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500 }}>Home</Link>
-          <Link href="/recycle-bin" underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500 }}>Resource groups</Link>
+          <Link component="button" onClick={() => navigate('/dashboard')} underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}>Home</Link>
+          <Link component="button" onClick={() => navigate('/recycle-bin')} underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', p: 0 }}>Resource groups</Link>
           <Typography sx={{ fontSize: 13, color: 'text.disabled' }}>{group?.name || '...'}</Typography>
         </Breadcrumbs>
       </Box>
