@@ -37,19 +37,16 @@ const renderPage = () =>
 describe('InsightHome', () => {
   it('renders the page header', () => {
     renderPage();
-    // "Insights" appears in both the breadcrumb and the title row.
-    expect(screen.getAllByText('Insights').length).toBeGreaterThan(0);
+    // "Insights" appears in the component.
+    expect(screen.getByText('Insights')).toBeInTheDocument();
   });
 
-  it('renders the summary cards and charts after loading', async () => {
+  it('renders the coming soon message', () => {
     renderPage();
-    expect(await screen.findByText('Virtual Machine Details')).toBeInTheDocument();
-    expect(screen.getByText('Platform Compliance')).toBeInTheDocument();
-    expect(screen.getByText('Virtual Machines')).toBeInTheDocument();
-    expect(screen.getAllByText('Jobs').length).toBeGreaterThan(0);
+    expect(screen.getByText('Coming soon')).toBeInTheDocument();
   });
 
-  it('renders under a dark theme without breaking', async () => {
+  it('renders under a dark theme without breaking', () => {
     render(
       <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
         <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -57,6 +54,6 @@ describe('InsightHome', () => {
         </MemoryRouter>
       </ThemeProvider>,
     );
-    expect(await screen.findByText('Virtual Machine Details')).toBeInTheDocument();
+    expect(screen.getByText('Insights')).toBeInTheDocument();
   });
 });
