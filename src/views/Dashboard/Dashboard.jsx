@@ -117,9 +117,9 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 }, bgcolor: '#f5f7fa', minHeight: '100%' }}>
+    <Box sx={{ p: { xs: 2, sm: 3 }, bgcolor: 'background.default', minHeight: '100%' }}>
       <Box sx={{ mb: 3 }}>
-        <Typography sx={{ fontSize: 22, fontWeight: 700, color: '#0a1929' }}>
+        <Typography sx={{ fontSize: 22, fontWeight: 700, color: 'text.primary' }}>
           Welcome{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
         </Typography>
         <Typography sx={{ fontSize: 13, color: 'text.secondary', mt: 0.5 }}>
@@ -163,7 +163,7 @@ const Dashboard = () => {
                       />
                     ) : null}
                   </Stack>
-                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0a1929', mb: 0.5 }}>
+                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: 'text.primary', mb: 0.5 }}>
                     {s.title}
                   </Typography>
                   <Typography sx={{ fontSize: 13, color: 'text.secondary', minHeight: 38 }}>

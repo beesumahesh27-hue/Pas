@@ -265,8 +265,8 @@ const VirtualMachines = () => {
         >
           Home
         </Link>
-        <Typography sx={{ fontSize: 13, color: '#9e9e9e' }}>&gt;</Typography>
-        <Typography sx={{ fontSize: 13, color: '#757575' }}>Task</Typography>
+        <Typography sx={{ fontSize: 13, color: 'text.disabled' }}>&gt;</Typography>
+        <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>Task</Typography>
       </Box>
 
       {/* Page title */}
@@ -294,14 +294,14 @@ const VirtualMachines = () => {
 
         <Button variant="text" startIcon={<RefreshOutlinedIcon sx={{ fontSize: 17 }} />}
           onClick={() => fetchVms(searchInput, powerStateFilter)} disabled={loading}
-          sx={{ textTransform: 'none', color: '#424242', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
+          sx={{ textTransform: 'none', color: 'text.secondary', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
           Refresh
         </Button>
 
         {/* Export */}
         <Button variant="text" startIcon={<FileDownloadOutlinedIcon sx={{ fontSize: 17 }} />}
           onClick={(e) => setExportAnchor(e.currentTarget)}
-          sx={{ textTransform: 'none', color: '#424242', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
+          sx={{ textTransform: 'none', color: 'text.secondary', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
           Export
         </Button>
         <Menu anchorEl={exportAnchor} open={Boolean(exportAnchor)} onClose={() => setExportAnchor(null)}
@@ -313,7 +313,7 @@ const VirtualMachines = () => {
         {hasFilter && (
           <Button variant="text" startIcon={<FilterAltOffOutlinedIcon sx={{ fontSize: 17 }} />}
             onClick={() => { setPowerStateFilter(''); setSearchValue(''); setSearchInput(''); fetchVms('', ''); }}
-            sx={{ textTransform: 'none', color: '#424242', fontSize: 14, fontWeight: 400, minWidth: 0, '&:hover': { color: '#1976d2' } }}>
+            sx={{ textTransform: 'none', color: 'text.secondary', fontSize: 14, fontWeight: 400, minWidth: 0, '&:hover': { color: 'primary.main' } }}>
             Remove Filter
           </Button>
         )}
@@ -389,7 +389,7 @@ const VirtualMachines = () => {
           sx={{
             textTransform: 'none',
             fontSize: 13,
-            color: powerStateFilter ? '#1976d2' : '#424242',
+            color: powerStateFilter ? 'primary.main' : 'text.secondary',
             fontWeight: powerStateFilter ? 600 : 400,
           }}
         >
@@ -401,7 +401,7 @@ const VirtualMachines = () => {
           onClose={() => setFilterMenuAnchor(null)}
           PaperProps={{ sx: { minWidth: 200, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', borderRadius: 1 } }}
         >
-          <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#9e9e9e', px: 2, pt: 1, pb: 0.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <Typography sx={{ fontSize: 11, fontWeight: 600, color: 'text.disabled', px: 2, pt: 1, pb: 0.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Power State
           </Typography>
           <MenuItem onClick={() => handlePowerStateFilter('')} selected={!powerStateFilter} sx={{ fontSize: 13 }}>
@@ -418,7 +418,7 @@ const VirtualMachines = () => {
         </Menu>
 
         <Box sx={{ flex: 1 }} />
-        <Typography sx={{ fontSize: 13, color: '#757575' }}>
+        <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
           Showing {filteredVms.length} of {normalizedVms.length} Records
         </Typography>
       </Box>

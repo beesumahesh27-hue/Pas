@@ -173,7 +173,7 @@ const ComplianceList = () => {
         {/* ── Title row ── */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
           <VerifiedUserOutlinedIcon sx={{ fontSize: 36, color: '#1976d2', mr: 1.5 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, lineHeight: 1.2 }}>Compliance Service</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 600, lineHeight: 1.2, color: 'text.primary' }}>Compliance Service</Typography>
         </Box>
 
         {/* ── Action toolbar ── */}
@@ -189,13 +189,13 @@ const ComplianceList = () => {
 
           <Button variant="text" startIcon={<RefreshOutlinedIcon sx={{ fontSize: 17 }} />}
             onClick={handleRefresh}
-            sx={{ textTransform: 'none', color: '#424242', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
+            sx={{ textTransform: 'none', color: 'text.secondary', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
             Refresh
           </Button>
 
           <Button variant="text" startIcon={<FileDownloadOutlinedIcon sx={{ fontSize: 17 }} />}
             onClick={(e) => setExportAnchor(e.currentTarget)}
-            sx={{ textTransform: 'none', color: '#424242', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
+            sx={{ textTransform: 'none', color: 'text.secondary', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
             Export
           </Button>
           <Menu anchorEl={exportAnchor} open={Boolean(exportAnchor)} onClose={() => setExportAnchor(null)}
@@ -206,7 +206,7 @@ const ComplianceList = () => {
 
         </Box>
 
-        <Divider sx={{ mb: 2.5, borderColor: '#e0e0e0' }} />
+        <Divider sx={{ mb: 2.5 }} />
 
         {/* ── Search + Filter row ── */}
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1.5, flexWrap: 'wrap' }}>
@@ -229,7 +229,7 @@ const ComplianceList = () => {
           />
 
           <Box sx={{ flex: 1 }} />
-          <Typography sx={{ fontSize: 13, color: '#757575', whiteSpace: 'nowrap' }}>
+          <Typography sx={{ fontSize: 13, color: 'text.secondary', whiteSpace: 'nowrap' }}>
             Showing {submissions.length} of {submissions.length} Records
           </Typography>
         </Box>
@@ -271,7 +271,7 @@ const ComplianceList = () => {
                       <IconButton className="action-icon" size="small"
                         onClick={(e) => { setMenuAnchor(e.currentTarget); setMenuRow(row); }}
                         style={{ opacity: menuRow?.id === row.id ? 1 : undefined }}
-                        sx={{ color: '#757575', '&:hover': { color: '#1976d2', bgcolor: (t) => t.palette.mode === 'dark' ? t.palette.grey[700] : '#e3f2fd' } }}>
+                        sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main', bgcolor: (t) => t.palette.mode === 'dark' ? t.palette.grey[700] : '#e3f2fd' } }}>
                         <MoreVertIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
