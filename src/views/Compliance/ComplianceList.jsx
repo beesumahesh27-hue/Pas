@@ -40,11 +40,14 @@ import api from '../../services/api';
 import PaginationBar from '../../components/PaginationBar';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useSelector } from 'react-redux';
+import { drawPdfHeader, buildCsvHeader, escapeCsvCell } from '../../services/pdfHeader';
 import FeedbackDialog from '../PasOverview/Tasks/FeedbackDialog';
 
 
 const ComplianceList = () => {
   const navigate = useNavigate();
+  const user     = useSelector((s) => s.auth.user);
 
   const [submissions, setSubmissions]   = useState([]);
   const [loading, setLoading]           = useState(false);
@@ -123,16 +126,18 @@ const ComplianceList = () => {
 
   const handleExportCSV = () => {
     setExportAnchor(null);
-    const blob = new Blob([`${exportCols.join(',')}\n${exportRows.map(r => r.map(v => `"${v}"`).join(',')).join('\n')}`], { type: 'text/csv' });
+    const preamble = buildCsvHeader('Compliance Service', user);
+    const header   = exportCols.join(',');
+    const rows     = exportRows.map(r => r.map(escapeCsvCell).join(',')).join('\n');
+    const blob = new Blob([`${preamble}${header}\n${rows}`], { type: 'text/csv' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'compliance.csv'; a.click();
   };
 
   const handleExportPDF = () => {
     setExportAnchor(null);
     const doc = new jsPDF({ orientation: 'landscape' });
-    doc.setFontSize(14);
-    doc.text('Compliance Service', 14, 15);
-    autoTable(doc, { startY: 22, head: [exportCols], body: exportRows, styles: { fontSize: 9 }, headStyles: { fillColor: [25, 118, 210] } });
+    const startY = drawPdfHeader(doc, 'Compliance Service', user);
+    autoTable(doc, { startY, head: [exportCols], body: exportRows, styles: { fontSize: 9 }, headStyles: { fillColor: [25, 118, 210] } });
     doc.save('compliance.pdf');
   };
 
@@ -156,7 +161,13 @@ const ComplianceList = () => {
 
         {/* ── Breadcrumb ── */}
         <Breadcrumbs separator="›" sx={{ mb: 1.5, fontSize: 13 }}>
-          <Link href="/" underline="hover" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500 }}>Home</Link>
+          <Link
+            underline="hover"
+            onClick={() => navigate('/dashboard')}
+            sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, cursor: 'pointer' }}
+          >
+            Home
+          </Link>
           <Typography sx={{ fontSize: 13, color: 'text.disabled' }}>Compliance Service</Typography>
         </Breadcrumbs>
 

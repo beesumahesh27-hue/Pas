@@ -17,7 +17,7 @@ if (apiBaseUrl) {
 }
 
 axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  const token = sessionStorage.getItem(TOKEN_STORAGE_KEY);
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;

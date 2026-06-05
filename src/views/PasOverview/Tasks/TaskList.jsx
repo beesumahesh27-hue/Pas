@@ -32,8 +32,10 @@ import ComputerOutlinedIcon       from '@mui/icons-material/ComputerOutlined';
 import FileDownloadOutlinedIcon   from '@mui/icons-material/FileDownloadOutlined';
 import LocationOnOutlinedIcon     from '@mui/icons-material/LocationOnOutlined';
 import { useNavigate }            from 'react-router-dom';
+import { useSelector }            from 'react-redux';
 import { jsPDF }                  from 'jspdf';
 import autoTable                  from 'jspdf-autotable';
+import { drawPdfHeader, buildCsvHeader, escapeCsvCell } from '../../../services/pdfHeader';
 
 import StatCard     from '../../../components/StatCard';
 import VMDataTable  from '../../../components/VMDataTable';
@@ -46,6 +48,7 @@ const LOCATION_KEY = 'compliance_current_location';
 
 const VirtualMachines = () => {
   const navigate = useNavigate();
+  const user     = useSelector((s) => s.auth.user);
   const [viewMode, setViewMode]               = useState('list');
   const [searchValue, setSearchValue]         = useState(''); // eslint-disable-line no-unused-vars
   const [regionFilter, setRegionFilter]       = useState('');
@@ -54,6 +57,7 @@ const VirtualMachines = () => {
   const [searchInput, setSearchInput]         = useState('');
   const [createMenuAnchor, setCreateMenuAnchor] = useState(null);
   const [createPageOpen, setCreatePageOpen]   = useState(false);
+  const [editTask, setEditTask]               = useState(null);
   const [vms, setVms]                         = useState([]);
   const [loading, setLoading]                 = useState(false);
   const [regions, setRegions]                 = useState([]);
@@ -67,8 +71,13 @@ const VirtualMachines = () => {
   const [rowsPerPage, setRowsPerPage]         = useState(10);
   const [feedbackOpen, setFeedbackOpen]       = useState(false);
 
-  /* Location info banner */
-  const [showLocationInfo, setShowLocationInfo] = useState(!localStorage.getItem(LOCATION_KEY));
+  /* Location info banner — stays visible until BOTH Region and POD are selected */
+  const [showLocationInfo, setShowLocationInfo] = useState(() => {
+    try {
+      const { region, pod } = JSON.parse(localStorage.getItem(LOCATION_KEY) || '{}');
+      return !(region && pod);
+    } catch (_e) { return true; }
+  });
 
   const showBanner = (msg) => {
     setSuccessMsg(msg);
@@ -119,9 +128,10 @@ const VirtualMachines = () => {
     const pod   = saved ? (JSON.parse(saved).pod || '') : podFilter;
     if (val) {
       localStorage.setItem(LOCATION_KEY, JSON.stringify({ region: val, pod }));
-      setShowLocationInfo(false);
+      setShowLocationInfo(!pod);          // hide only when POD is also selected
     } else {
       localStorage.removeItem(LOCATION_KEY);
+      setShowLocationInfo(true);          // region cleared → remind again
     }
   };
 
@@ -129,6 +139,9 @@ const VirtualMachines = () => {
     setPodFilter(val);
     if (regionFilter) {
       localStorage.setItem(LOCATION_KEY, JSON.stringify({ region: regionFilter, pod: val }));
+      setShowLocationInfo(!val);          // hide only when POD is also selected
+    } else {
+      setShowLocationInfo(true);          // no region yet → keep reminding
     }
   };
 
@@ -166,7 +179,7 @@ const VirtualMachines = () => {
     fetchVms(searchInput, val);
   };
 
-  const openCreatePage = () => { setCreateMenuAnchor(null); setCreatePageOpen(true); };
+  const openCreatePage = () => { setCreateMenuAnchor(null); setEditTask(null); setCreatePageOpen(true); };
   const handleRowClick = (vm) => navigate(`/vms/${vm.id}`);
 
   const handleActionClick = (e, row) => { e.stopPropagation(); setActionAnchor(e.currentTarget); setActionRow(row); };
@@ -186,20 +199,20 @@ const VirtualMachines = () => {
 
   const handleExportCSV = () => {
     setExportAnchor(null);
-    const header = exportCols.join(',');
-    const rows   = exportData.map(r => r.map(v => `"${v ?? ''}"`).join(',')).join('\n');
-    const blob   = new Blob([`${header}\n${rows}`], { type: 'text/csv' });
-    const url    = URL.createObjectURL(blob);
-    const a      = document.createElement('a'); a.href = url; a.download = 'tasks.csv'; a.click();
+    const preamble = buildCsvHeader('Task', user);
+    const header   = exportCols.join(',');
+    const rows     = exportData.map(r => r.map(escapeCsvCell).join(',')).join('\n');
+    const blob     = new Blob([`${preamble}${header}\n${rows}`], { type: 'text/csv' });
+    const url      = URL.createObjectURL(blob);
+    const a        = document.createElement('a'); a.href = url; a.download = 'tasks.csv'; a.click();
     URL.revokeObjectURL(url);
   };
 
   const handleExportPDF = () => {
     setExportAnchor(null);
     const doc = new jsPDF({ orientation: 'landscape' });
-    doc.setFontSize(14);
-    doc.text('Task', 14, 15);
-    autoTable(doc, { startY: 22, head: [exportCols], body: exportData, styles: { fontSize: 8 }, headStyles: { fillColor: [25, 118, 210] } });
+    const startY = drawPdfHeader(doc, 'Task', user);
+    autoTable(doc, { startY, head: [exportCols], body: exportData, styles: { fontSize: 8 }, headStyles: { fillColor: [25, 118, 210] } });
     doc.save('tasks.pdf');
   };
 
@@ -207,8 +220,15 @@ const VirtualMachines = () => {
     return (
       <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         <CreateTask
-          onClose={() => setCreatePageOpen(false)}
-          onCreated={() => { setCreatePageOpen(false); fetchVms('', ''); showBanner('Task created successfully!'); }}
+          editData={editTask}
+          onClose={() => { setCreatePageOpen(false); setEditTask(null); }}
+          onCreated={() => {
+            const wasEdit = Boolean(editTask);
+            setCreatePageOpen(false);
+            setEditTask(null);
+            fetchVms('', '');
+            showBanner(wasEdit ? 'Task updated successfully!' : 'Task created successfully!');
+          }}
         />
       </Box>
     );
@@ -239,7 +259,13 @@ const VirtualMachines = () => {
 
       {/* Breadcrumb */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.75 }}>
-        <Link href="/" underline="hover" sx={{ color: '#1976d2', fontSize: 13 }}>Home</Link>
+        <Link
+          underline="hover"
+          onClick={() => navigate('/dashboard')}
+          sx={{ color: '#1976d2', fontSize: 13, cursor: 'pointer' }}
+        >
+          Home
+        </Link>
         <Typography sx={{ fontSize: 13, color: '#9e9e9e' }}>&gt;</Typography>
         <Typography sx={{ fontSize: 13, color: '#757575' }}>Task</Typography>
       </Box>
@@ -438,7 +464,7 @@ const VirtualMachines = () => {
           <StopIcon sx={{ fontSize: 16, color: '#e53935' }} /> Halt
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleActionClose} sx={{ fontSize: 13 }}>Edit</MenuItem>
+        <MenuItem onClick={() => { setEditTask(actionRow); setActionAnchor(null); setCreatePageOpen(true); }} sx={{ fontSize: 13 }}>Edit</MenuItem>
         <MenuItem onClick={() => handleAction('delete')} sx={{ fontSize: 13, color: '#e53935' }}>Delete</MenuItem>
       </Menu>
 

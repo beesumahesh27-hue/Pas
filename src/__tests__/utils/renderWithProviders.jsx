@@ -20,7 +20,9 @@ export function renderWithProviders(ui, { store, ...renderOptions } = {}) {
   function Wrapper({ children }) {
     return (
       <Provider store={testStore}>
-        <BrowserRouter>{children}</BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          {children}
+        </BrowserRouter>
       </Provider>
     );
   }
