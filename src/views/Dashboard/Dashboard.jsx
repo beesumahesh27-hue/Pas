@@ -19,6 +19,7 @@ import StorageOutlinedIcon       from '@mui/icons-material/StorageOutlined';
 import DescriptionOutlinedIcon   from '@mui/icons-material/DescriptionOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import LightbulbOutlinedIcon     from '@mui/icons-material/LightbulbOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import ArrowForwardOutlinedIcon  from '@mui/icons-material/ArrowForwardOutlined';
 
 const SERVICES = [
@@ -71,6 +72,16 @@ const SERVICES = [
     bg:    '#fff8e1',
     path:  '/insights',
     countFrom: '/api/insights/summary',
+  },
+  {
+    key:   'recycle-bin',
+    title: 'Recycle Bin',
+    desc:  'Manage resource groups, resources and functions.',
+    icon:  <DeleteOutlineOutlinedIcon sx={{ fontSize: 30 }} />,
+    color: '#e53935',
+    bg:    '#ffebee',
+    path:  '/recycle-bin',
+    countFrom: '/api/recycle-bin/resource-groups',
   },
 ];
 
