@@ -12,7 +12,6 @@ import {
   Menu,
   MenuItem,
   Select,
-  TablePagination,
   TextField,
   Typography,
 } from '@mui/material';
@@ -42,6 +41,7 @@ import VMDataTable  from '../../../components/VMDataTable';
 import CreateTask     from './CreateTask';
 import FeedbackDialog from './FeedbackDialog';
 import api            from '../../../services/api';
+import PaginationBar  from '../../../components/PaginationBar';
 
 const LOCATION_KEY = 'compliance_current_location';
 
@@ -66,7 +66,7 @@ const VirtualMachines = () => {
   const [exportAnchor, setExportAnchor]       = useState(null);
   const [filterMenuAnchor, setFilterMenuAnchor] = useState(null);
   const [successMsg, setSuccessMsg]           = useState('');
-  const [page, setPage]                       = useState(0);
+  const [page, setPage]                       = useState(1);
   const [rowsPerPage, setRowsPerPage]         = useState(10);
   const [feedbackOpen, setFeedbackOpen]       = useState(false);
 
@@ -425,7 +425,7 @@ const VirtualMachines = () => {
 
       {/* Table */}
       <VMDataTable
-        rows={filteredVms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
+        rows={filteredVms.slice((page - 1) * rowsPerPage, page * rowsPerPage)}
         onCreateClick={openCreatePage}
         onRowClick={handleRowClick}
         onActionClick={handleActionClick}
@@ -434,15 +434,13 @@ const VirtualMachines = () => {
 
       {/* Pagination + Feedback */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <TablePagination
-          component="div"
-          count={filteredVms.length}
-          rowsPerPage={rowsPerPage}
+        <PaginationBar
           page={page}
+          totalPages={Math.max(1, Math.ceil(filteredVms.length / rowsPerPage))}
+          rowsPerPage={rowsPerPage}
           rowsPerPageOptions={[5, 10, 25]}
-          onPageChange={(_, v) => setPage(v)}
-          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-          sx={{ '& .MuiToolbar-root': { pl: 0 } }}
+          onPageChange={setPage}
+          onRowsPerPageChange={(n) => { setRowsPerPage(n); setPage(1); }}
         />
         <Button
           variant="contained"

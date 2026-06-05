@@ -68,7 +68,7 @@ const NAV_GROUPS = [
     items: [
       { icon: <CalendarTodayOutlinedIcon sx={{ fontSize: 20 }} />, label: 'Calendar',     path: '/calendar' },
       { icon: <LightbulbOutlinedIcon sx={{ fontSize: 20 }} />,     label: 'Insights',     path: '/insights' },
-      { icon: <DeleteOutlineIcon sx={{ fontSize: 20 }} />,         label: 'Recycle Bin',  path: null },
+      { icon: <DeleteOutlineIcon sx={{ fontSize: 20 }} />,         label: 'Recycle Bin',  path: '/recycle-bin' },
     ],
   },
   {
@@ -378,7 +378,14 @@ const Layout = ({ children }) => {
           </AppBar>
 
           {/* ── Page content ── */}
-          <Box sx={{ flex: 1, overflowY: 'auto' }}>
+          <Box sx={{
+            flex: 1,
+            overflowY: 'auto',
+            '&::-webkit-scrollbar-button': { display: 'none', width: 0, height: 0 },
+            '&::-webkit-scrollbar': { width: 8 },
+            '&::-webkit-scrollbar-thumb': { background: '#bdbdbd', borderRadius: 4 },
+            '&::-webkit-scrollbar-track': { background: 'transparent' },
+          }}>
             {children}
           </Box>
         </Box>

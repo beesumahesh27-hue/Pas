@@ -275,6 +275,78 @@ class CompliancePolicySubmissionResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ── Recycle Bin (Resource Groups / Resources / Functions) Schemas ───────────
+
+class ResourceGroupCreate(BaseModel):
+    name:            str            = Field(..., min_length=1, max_length=255)
+    subscription:    str            = Field(default="Free Trial", max_length=100)
+    subscription_id: Optional[str]  = Field(default=None, max_length=36)
+    location:        str            = Field(default="East US", max_length=100)
+
+
+class ResourceGroupResponse(BaseModel):
+    id:              int
+    name:            str
+    subscription:    str
+    subscription_id: Optional[str]  = None
+    location:        str
+    created_at:      datetime
+    resource_count:  Optional[int]  = 0
+    model_config = {"from_attributes": True}
+
+
+class RecycleResourceCreate(BaseModel):
+    name:            str           = Field(..., min_length=1, max_length=255)
+    type:            str           = Field(..., min_length=1, max_length=100)
+    location:        str           = Field(default="East US", max_length=100)
+    status:          str           = Field(default="Running", max_length=50)
+    runtime_version: Optional[str] = Field(default=None, max_length=50)
+    url:             Optional[str] = Field(default=None, max_length=500)
+    os:              Optional[str] = Field(default=None, max_length=50)
+
+
+class RecycleResourceResponse(BaseModel):
+    id:                int
+    resource_group_id: int
+    name:              str
+    type:              str
+    location:          str
+    status:            str
+    runtime_version:   Optional[str] = None
+    url:               Optional[str] = None
+    os:                Optional[str] = None
+    created_at:        datetime
+    model_config = {"from_attributes": True}
+
+
+class RecycleFunctionCreate(BaseModel):
+    name:        str           = Field(..., min_length=1, max_length=255)
+    trigger:     str           = Field(default="HTTP", max_length=100)
+    language:    str           = Field(default="Python", max_length=50)
+    status:      str           = Field(default="Enabled", max_length=50)
+    description: Optional[str] = None
+
+
+class RecycleFunctionResponse(BaseModel):
+    id:          int
+    resource_id: int
+    name:        str
+    trigger:     str
+    language:    str
+    status:      str
+    description: Optional[str] = None
+    created_at:  datetime
+    model_config = {"from_attributes": True}
+
+
+class DropdownOptionResponse(BaseModel):
+    id:         int
+    category:   str
+    value:      str
+    sort_order: int
+    model_config = {"from_attributes": True}
+
+
 class VMDiskCreate(BaseModel):
     disk_name:  str            = Field(default="Hard disk 1")
     size_gb:    int            = Field(default=50, ge=1)

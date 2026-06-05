@@ -179,6 +179,54 @@ class CompliancePolicySubmission(Base):
     submitted_at  = Column(DateTime(timezone=True), server_default=func.now())
 
 
+class ResourceGroup(Base):
+    __tablename__ = "resource_groups"
+
+    id              = Column(Integer, primary_key=True, index=True)
+    name            = Column(String(255), nullable=False, unique=True, index=True)
+    subscription    = Column(String(100), nullable=False, default="Free Trial")
+    subscription_id = Column(String(36),  nullable=True)
+    location        = Column(String(100), nullable=False, default="East US")
+    created_at      = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class RecycleResource(Base):
+    __tablename__ = "recycle_resources"
+
+    id                 = Column(Integer, primary_key=True, index=True)
+    resource_group_id  = Column(Integer, ForeignKey("resource_groups.id", ondelete="CASCADE"), nullable=False, index=True)
+    name               = Column(String(255), nullable=False)
+    type               = Column(String(100), nullable=False)
+    location           = Column(String(100), nullable=False, default="East US")
+    status             = Column(String(50),  nullable=False, default="Running")
+    runtime_version    = Column(String(50),  nullable=True)
+    url                = Column(String(500), nullable=True)
+    os                 = Column(String(50),  nullable=True)
+    created_at         = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class RecycleFunction(Base):
+    __tablename__ = "recycle_functions"
+
+    id           = Column(Integer, primary_key=True, index=True)
+    resource_id  = Column(Integer, ForeignKey("recycle_resources.id", ondelete="CASCADE"), nullable=False, index=True)
+    name         = Column(String(255), nullable=False)
+    trigger      = Column(String(100), nullable=False, default="HTTP")
+    language     = Column(String(50),  nullable=False, default="Python")
+    status       = Column(String(50),  nullable=False, default="Enabled")
+    description  = Column(Text,        nullable=True)
+    created_at   = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class DropdownOption(Base):
+    __tablename__ = "dropdown_options"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    category   = Column(String(100), nullable=False, index=True)
+    value      = Column(String(255), nullable=False)
+    sort_order = Column(Integer, default=0)
+
+
 class VMDisk(Base):
     __tablename__ = "vm_disks"
 
