@@ -32,8 +32,14 @@ import VMScaleConfig from './views/VirtualMachines/tabs/VMScaleConfig';
 // Calendar module
 import CalendarMain from './views/Calendar/CalendarMain';
 
-// Insights module
+// Insight module
 import InsightHome from './views/Insight/InsightHome';
+
+// Recycle Bin module
+import ResourceGroupList   from './views/RecycleBin/ResourceGroupList';
+import ResourceGroupDetail from './views/RecycleBin/ResourceGroupDetail';
+import FunctionAppDetail   from './views/RecycleBin/FunctionAppDetail';
+import FunctionDetail      from './views/RecycleBin/FunctionDetail';
 
 const ProtectedShell = ({ children }) => (
   <ProtectedRoute>
@@ -67,6 +73,12 @@ function App() {
         <Route path="/compliances/create" element={<ProtectedShell><ComplianceService /></ProtectedShell>} />
         <Route path="/calendar"          element={<ProtectedShell><CalendarMain /></ProtectedShell>} />
         <Route path="/insights"          element={<ProtectedShell><InsightHome /></ProtectedShell>} />
+
+        {/* Recycle Bin */}
+        <Route path="/recycle-bin"                                       element={<ProtectedShell><ResourceGroupList /></ProtectedShell>} />
+        <Route path="/recycle-bin/:groupId"                              element={<ProtectedShell><ResourceGroupDetail /></ProtectedShell>} />
+        <Route path="/recycle-bin/:groupId/function-app/:resourceId"                          element={<ProtectedShell><FunctionAppDetail /></ProtectedShell>} />
+        <Route path="/recycle-bin/:groupId/function-app/:resourceId/function/:functionId"   element={<ProtectedShell><FunctionDetail /></ProtectedShell>} />
 
         <Route path="/:id" element={<ProtectedShell><OverviewMain /></ProtectedShell>}>
           <Route path="overview"  element={<Overview />} />

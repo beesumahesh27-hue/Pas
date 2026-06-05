@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 
@@ -27,36 +27,40 @@ jest.mock('../../services/insightApi', () => ({
 
 import InsightHome from '../../views/Insight/InsightHome';
 
-const renderPage = () =>
-  render(
-    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <InsightHome />
-    </MemoryRouter>,
-  );
+const renderPage = async () => {
+  await act(async () => {
+    render(
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <InsightHome />
+      </MemoryRouter>,
+    );
+  });
+};
 
 describe('InsightHome', () => {
-  it('renders the page header', () => {
-    renderPage();
-    // "Insights" appears in both the breadcrumb and the title row.
+  it('renders the page header', async () => {
+    await renderPage();
     expect(screen.getAllByText('Insights').length).toBeGreaterThan(0);
   });
 
   it('renders the summary cards and charts after loading', async () => {
-    renderPage();
-    expect(await screen.findByText('Virtual Machine Details')).toBeInTheDocument();
+    await renderPage();
+    expect(screen.getByText('Virtual Machine Details')).toBeInTheDocument();
     expect(screen.getByText('Platform Compliance')).toBeInTheDocument();
     expect(screen.getByText('Virtual Machines')).toBeInTheDocument();
     expect(screen.getAllByText('Jobs').length).toBeGreaterThan(0);
   });
 
   it('renders under a dark theme without breaking', async () => {
-    render(
-      <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
-        <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <InsightHome />
-        </MemoryRouter>
-      </ThemeProvider>,
-    );
-    expect(await screen.findByText('Virtual Machine Details')).toBeInTheDocument();
+    await act(async () => {
+      render(
+        <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
+          <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <InsightHome />
+          </MemoryRouter>
+        </ThemeProvider>,
+      );
+    });
+    expect(screen.getByText('Virtual Machine Details')).toBeInTheDocument();
   });
 });
