@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import engine, Base
-from routers import auth, platforms, regions, options, virtual_machines, compliance, jobs, notifications, recycle_bin
+from routers import auth, platforms, regions, options, virtual_machines, compliance, jobs, notifications, recycle_bin, insights
 from seed import seed
 
 # Create tables and run column migrations before app starts
@@ -51,9 +51,7 @@ def _run_migrations():
         "ALTER TABLE recycle_resources ADD COLUMN IF NOT EXISTS os  VARCHAR(50)",
     ]
     backfill = [
-        # Set a placeholder subscription_id for rows that have none yet
         "UPDATE resource_groups SET subscription_id = 'fe4a1fdb-6a1c-4a6d-a6b0-dbb12f6a00f8' WHERE subscription_id IS NULL",
-        # Default OS for Function App resources
         "UPDATE recycle_resources SET os = 'Windows' WHERE os IS NULL AND type = 'Function App'",
         "UPDATE recycle_resources SET os = 'Linux'   WHERE os IS NULL AND type = 'Application Insights'",
         "UPDATE recycle_resources SET os = 'Linux'   WHERE os IS NULL AND type = 'Storage account'",
@@ -93,6 +91,7 @@ app.include_router(compliance.router)
 app.include_router(jobs.router)
 app.include_router(notifications.router)
 app.include_router(recycle_bin.router)
+app.include_router(insights.router)
 
 
 @app.get("/", tags=["root"])
