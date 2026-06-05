@@ -67,7 +67,7 @@ const NAV_GROUPS = [
     label: 'DASHBOARDS',
     items: [
       { icon: <CalendarTodayOutlinedIcon sx={{ fontSize: 20 }} />, label: 'Calendar',     path: '/calendar' },
-      { icon: <LightbulbOutlinedIcon sx={{ fontSize: 20 }} />,     label: 'Insights',     path: null },
+      { icon: <LightbulbOutlinedIcon sx={{ fontSize: 20 }} />,     label: 'Insights',     path: '/insights' },
       { icon: <DeleteOutlineIcon sx={{ fontSize: 20 }} />,         label: 'Recycle Bin',  path: '/recycle-bin' },
     ],
   },

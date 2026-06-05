@@ -20,13 +20,13 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 import AddOutlinedIcon          from '@mui/icons-material/AddOutlined';
 import RefreshOutlinedIcon      from '@mui/icons-material/RefreshOutlined';
@@ -48,6 +48,7 @@ import CreateResourceGroup from './RecycleBinActions/CreateResourceGroup';
 
 const ResourceGroupList = () => {
   const navigate = useNavigate();
+  const authUser = useSelector((s) => s.auth.user);
 
   const [groups, setGroups]             = useState([]);
   const [loading, setLoading]           = useState(false);
@@ -170,7 +171,7 @@ const ResourceGroupList = () => {
           <Typography variant="h5" sx={{ fontWeight: 600, lineHeight: 1.2 }}>Resource groups</Typography>
         </Box>
         <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 2.5, ml: 5.25 }}>
-          Default Directory
+          {authUser?.email || authUser?.name || 'Default Directory'}
         </Typography>
 
         {/* ── Action toolbar ── */}
@@ -241,7 +242,7 @@ const ResourceGroupList = () => {
 
           <Box sx={{ flex: 1 }} />
           <Typography sx={{ fontSize: 13, color: 'text.secondary', whiteSpace: 'nowrap' }}>
-            Showing 1 to {groups.length} of {groups.length} records
+            {groups.length === 0 ? 'No records' : `Showing ${(page - 1) * rowsPerPage + 1}–${Math.min(page * rowsPerPage, groups.length)} of ${groups.length} records`}
           </Typography>
         </Box>
 

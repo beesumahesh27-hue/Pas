@@ -278,18 +278,20 @@ class CompliancePolicySubmissionResponse(BaseModel):
 # ── Recycle Bin (Resource Groups / Resources / Functions) Schemas ───────────
 
 class ResourceGroupCreate(BaseModel):
-    name:         str            = Field(..., min_length=1, max_length=255)
-    subscription: str            = Field(default="Free Trial", max_length=100)
-    location:     str            = Field(default="East US", max_length=100)
+    name:            str            = Field(..., min_length=1, max_length=255)
+    subscription:    str            = Field(default="Free Trial", max_length=100)
+    subscription_id: Optional[str]  = Field(default=None, max_length=36)
+    location:        str            = Field(default="East US", max_length=100)
 
 
 class ResourceGroupResponse(BaseModel):
-    id:           int
-    name:         str
-    subscription: str
-    location:     str
-    created_at:   datetime
-    resource_count: Optional[int] = 0
+    id:              int
+    name:            str
+    subscription:    str
+    subscription_id: Optional[str]  = None
+    location:        str
+    created_at:      datetime
+    resource_count:  Optional[int]  = 0
     model_config = {"from_attributes": True}
 
 
@@ -299,6 +301,8 @@ class RecycleResourceCreate(BaseModel):
     location:        str           = Field(default="East US", max_length=100)
     status:          str           = Field(default="Running", max_length=50)
     runtime_version: Optional[str] = Field(default=None, max_length=50)
+    url:             Optional[str] = Field(default=None, max_length=500)
+    os:              Optional[str] = Field(default=None, max_length=50)
 
 
 class RecycleResourceResponse(BaseModel):
@@ -309,6 +313,8 @@ class RecycleResourceResponse(BaseModel):
     location:          str
     status:            str
     runtime_version:   Optional[str] = None
+    url:               Optional[str] = None
+    os:                Optional[str] = None
     created_at:        datetime
     model_config = {"from_attributes": True}
 

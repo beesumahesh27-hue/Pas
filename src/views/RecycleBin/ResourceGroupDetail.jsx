@@ -7,7 +7,6 @@ import {
   Checkbox,
   Chip,
   Collapse,
-  Divider,
   FormControl,
   IconButton,
   InputAdornment,
@@ -29,6 +28,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 import AddOutlinedIcon              from '@mui/icons-material/AddOutlined';
 import RefreshOutlinedIcon          from '@mui/icons-material/RefreshOutlined';
@@ -61,8 +61,6 @@ import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArro
 import PushPinOutlinedIcon          from '@mui/icons-material/PushPinOutlined';
 import StarBorderOutlinedIcon       from '@mui/icons-material/StarBorderOutlined';
 import CloseIcon                    from '@mui/icons-material/Close';
-import KeyboardArrowLeftIcon        from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon       from '@mui/icons-material/KeyboardArrowRight';
 import ExpandMoreOutlinedIcon       from '@mui/icons-material/ExpandMoreOutlined';
 import ViewListOutlinedIcon         from '@mui/icons-material/ViewListOutlined';
 import InfoOutlinedIcon             from '@mui/icons-material/InfoOutlined';
@@ -117,6 +115,7 @@ const PAGE_SIZE_OPTIONS = [10, 20, 100];
 const ResourceGroupDetail = () => {
   const navigate = useNavigate();
   const { groupId } = useParams();
+  const authUser  = useSelector((s) => s.auth.user);
 
   const [group, setGroup]                 = useState(null);
   const [resources, setResources]         = useState([]);
@@ -136,7 +135,6 @@ const ResourceGroupDetail = () => {
   const [createOpen, setCreateOpen]       = useState(false);
   const [groupsCollapsed, setGroupsCollapsed]   = useState(false);
   const [subNavCollapsed, setSubNavCollapsed]   = useState(false);
-  const [moreExpanded, setMoreExpanded]   = useState(false);
   const [grouping, setGrouping]           = useState('No grouping');
   const [viewMode, setViewMode]           = useState('List view');
   const [successMsg, setSuccessMsg]         = useState('');
@@ -247,16 +245,14 @@ const ResourceGroupDetail = () => {
                   Resource groups
                 </Typography>
                 <Typography sx={{ fontSize: 11, color: 'text.secondary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', mt: 0.25 }}>
-                  Default Directory (bhavyabojanapalli@onmi…)
+                  {authUser?.email || authUser?.name || 'Default Directory'}
                 </Typography>
               </Box>
             )}
-            <Tooltip title="Collapse pane (disabled)" arrow>
-              <span>
-                <IconButton size="small" disabled sx={{ flexShrink: 0, mt: -0.5 }}>
-                  {groupsCollapsed ? <KeyboardDoubleArrowRightIcon fontSize="small" /> : <KeyboardDoubleArrowLeftIcon fontSize="small" />}
-                </IconButton>
-              </span>
+            <Tooltip title={groupsCollapsed ? 'Expand' : 'Collapse'} arrow>
+              <IconButton size="small" onClick={() => setGroupsCollapsed(c => !c)} sx={{ flexShrink: 0, mt: -0.5 }}>
+                {groupsCollapsed ? <KeyboardDoubleArrowRightIcon fontSize="small" /> : <KeyboardDoubleArrowLeftIcon fontSize="small" />}
+              </IconButton>
             </Tooltip>
           </Box>
 
@@ -493,12 +489,14 @@ const ResourceGroupDetail = () => {
                 <Chip label="Type equals all" onDelete={() => {}} size="small" variant="outlined" sx={{ fontSize: 12, height: 30, borderRadius: 1, bgcolor: 'background.paper', flexShrink: 0 }} />
                 <Button variant="text" startIcon={<FilterAltOutlinedIcon sx={{ fontSize: 16 }} />} sx={{ textTransform: 'none', color: '#1976d2', fontSize: 13, fontWeight: 400, minWidth: 0, whiteSpace: 'nowrap', flexShrink: 0 }}>Add filter</Button>
                 <Box sx={{ flex: 1, minWidth: 8 }} />
-                <Button variant="text" endIcon={<ExpandMoreOutlinedIcon sx={{ fontSize: 16 }} />} onClick={() => setMoreExpanded(m => !m)} sx={{ textTransform: 'none', color: '#1976d2', fontSize: 13, fontWeight: 400, minWidth: 0, whiteSpace: 'nowrap', flexShrink: 0 }}>More (1)</Button>
+                <Button variant="text" endIcon={<ExpandMoreOutlinedIcon sx={{ fontSize: 16 }} />} sx={{ textTransform: 'none', color: '#1976d2', fontSize: 13, fontWeight: 400, minWidth: 0, whiteSpace: 'nowrap', flexShrink: 0 }}>More (1)</Button>
               </Box>
 
               {/* Row count + Show hidden + grouping */}
               <Box sx={{ px: 2.5, pb: 0.75, display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', rowGap: 0.75 }}>
-                <Typography sx={{ fontSize: 12.5, color: 'text.secondary' }}>Showing 1 to {filtered.length} of {filtered.length} records.</Typography>
+                <Typography sx={{ fontSize: 12.5, color: 'text.secondary' }}>
+                  Showing {filtered.length === 0 ? 0 : (page - 1) * rowsPerPage + 1}–{Math.min(page * rowsPerPage, filtered.length)} of {filtered.length} records.
+                </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <Checkbox size="small" sx={{ p: 0.25 }} />
                   <Typography sx={{ fontSize: 12.5, color: 'text.secondary' }}>Show hidden types</Typography>

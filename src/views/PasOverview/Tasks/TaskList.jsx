@@ -12,7 +12,6 @@ import {
   Menu,
   MenuItem,
   Select,
-  TablePagination,
   TextField,
   Typography,
 } from '@mui/material';

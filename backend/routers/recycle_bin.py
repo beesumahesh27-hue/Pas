@@ -45,6 +45,7 @@ def list_resource_groups(search: str = None, db: Session = Depends(get_db)):
             "id": g.id,
             "name": g.name,
             "subscription": g.subscription,
+            "subscription_id": g.subscription_id,
             "location": g.location,
             "created_at": g.created_at,
             "resource_count": counts.get(g.id, 0),
@@ -63,6 +64,7 @@ def create_resource_group(
     row = models.ResourceGroup(
         name=payload.name,
         subscription=payload.subscription,
+        subscription_id=payload.subscription_id,
         location=payload.location,
     )
     db.add(row)
@@ -139,6 +141,8 @@ def create_resource(
         location=payload.location,
         status=payload.status,
         runtime_version=payload.runtime_version,
+        url=payload.url,
+        os=payload.os,
     )
     db.add(row)
     db.commit()

@@ -32,6 +32,9 @@ import VMScaleConfig from './views/VirtualMachines/tabs/VMScaleConfig';
 // Calendar module
 import CalendarMain from './views/Calendar/CalendarMain';
 
+// Insight module
+import InsightHome from './views/Insight/InsightHome';
+
 // Recycle Bin module
 import ResourceGroupList   from './views/RecycleBin/ResourceGroupList';
 import ResourceGroupDetail from './views/RecycleBin/ResourceGroupDetail';

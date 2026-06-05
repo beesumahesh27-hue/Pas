@@ -95,22 +95,47 @@ def seed():
                 {
                     "name": "abhi-azure-functions-rg-590222372",
                     "subscription": "Free Trial",
+                    "subscription_id": "fe4a1fdb-6a1c-4a6d-a6b0-dbb12f6a00f8",
                     "location": "East US",
                     "resources": [
-                        {"name": "abhi-serverless-python-function-590222372", "type": "Application Insights", "location": "East US"},
-                        {"name": "abhi-serverless-python-function-590222372", "type": "Function App",         "location": "East US", "runtime_version": "4.30.0.0"},
-                        {"name": "abhi590222372",                              "type": "Storage account",     "location": "East US"},
+                        {
+                            "name": "abhi-serverless-python-function-590222372",
+                            "type": "Application Insights",
+                            "location": "East US",
+                            "url": "https://abhi-serverless-python-function-590222372.azurewebsites.net",
+                            "os": "Windows",
+                        },
+                        {
+                            "name": "abhi-serverless-python-function-590222372",
+                            "type": "Function App",
+                            "location": "East US",
+                            "runtime_version": "4.30.0.0",
+                            "url": "https://abhi-serverless-python-function-590222372.azurewebsites.net",
+                            "os": "Windows",
+                        },
+                        {
+                            "name": "abhi590222372",
+                            "type": "Storage account",
+                            "location": "East US",
+                            "os": "Linux",
+                        },
                     ],
                 },
                 {
                     "name": "DefaultResourceGroup-EUS",
                     "subscription": "Free Trial",
+                    "subscription_id": "fe4a1fdb-6a1c-4a6d-a6b0-dbb12f6a00f8",
                     "location": "East US",
                     "resources": [],
                 },
             ]
             for g in seed_groups:
-                grp = ResourceGroup(name=g["name"], subscription=g["subscription"], location=g["location"])
+                grp = ResourceGroup(
+                    name=g["name"],
+                    subscription=g["subscription"],
+                    subscription_id=g.get("subscription_id"),
+                    location=g["location"],
+                )
                 db.add(grp)
                 db.flush()
                 for r in g["resources"]:
@@ -121,6 +146,8 @@ def seed():
                         location=r["location"],
                         status="Running",
                         runtime_version=r.get("runtime_version"),
+                        url=r.get("url"),
+                        os=r.get("os"),
                     ))
 
         db.commit()

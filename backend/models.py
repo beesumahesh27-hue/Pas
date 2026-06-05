@@ -182,11 +182,12 @@ class CompliancePolicySubmission(Base):
 class ResourceGroup(Base):
     __tablename__ = "resource_groups"
 
-    id           = Column(Integer, primary_key=True, index=True)
-    name         = Column(String(255), nullable=False, unique=True, index=True)
-    subscription = Column(String(100), nullable=False, default="Free Trial")
-    location     = Column(String(100), nullable=False, default="East US")
-    created_at   = Column(DateTime(timezone=True), server_default=func.now())
+    id              = Column(Integer, primary_key=True, index=True)
+    name            = Column(String(255), nullable=False, unique=True, index=True)
+    subscription    = Column(String(100), nullable=False, default="Free Trial")
+    subscription_id = Column(String(36),  nullable=True)
+    location        = Column(String(100), nullable=False, default="East US")
+    created_at      = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class RecycleResource(Base):
@@ -195,10 +196,12 @@ class RecycleResource(Base):
     id                 = Column(Integer, primary_key=True, index=True)
     resource_group_id  = Column(Integer, ForeignKey("resource_groups.id", ondelete="CASCADE"), nullable=False, index=True)
     name               = Column(String(255), nullable=False)
-    type               = Column(String(100), nullable=False)  # Application Insights | Function App | Storage account
+    type               = Column(String(100), nullable=False)
     location           = Column(String(100), nullable=False, default="East US")
     status             = Column(String(50),  nullable=False, default="Running")
     runtime_version    = Column(String(50),  nullable=True)
+    url                = Column(String(500), nullable=True)
+    os                 = Column(String(50),  nullable=True)
     created_at         = Column(DateTime(timezone=True), server_default=func.now())
 
 

@@ -9,14 +9,12 @@ import {
   CircularProgress,
   Collapse,
   Divider,
-  FormControl,
   IconButton,
   InputAdornment,
   Link,
   Menu,
   MenuItem,
   Paper,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -43,14 +41,11 @@ import SwapHorizOutlinedIcon        from '@mui/icons-material/SwapHorizOutlined'
 import FileDownloadOutlinedIcon     from '@mui/icons-material/FileDownloadOutlined';
 import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
 import OpenInBrowserOutlinedIcon    from '@mui/icons-material/OpenInBrowserOutlined';
-import HomeOutlinedIcon             from '@mui/icons-material/HomeOutlined';
 import ListAltOutlinedIcon          from '@mui/icons-material/ListAltOutlined';
 import VpnKeyOutlinedIcon           from '@mui/icons-material/VpnKeyOutlined';
 import LabelOutlinedIcon            from '@mui/icons-material/LabelOutlined';
 import HealthAndSafetyOutlinedIcon  from '@mui/icons-material/HealthAndSafetyOutlined';
 import ShieldOutlinedIcon           from '@mui/icons-material/ShieldOutlined';
-import DescriptionOutlinedIcon      from '@mui/icons-material/DescriptionOutlined';
-import EventNoteOutlinedIcon        from '@mui/icons-material/EventNoteOutlined';
 import TerminalOutlinedIcon         from '@mui/icons-material/TerminalOutlined';
 import KeyOutlinedIcon              from '@mui/icons-material/KeyOutlined';
 import FolderOpenOutlinedIcon       from '@mui/icons-material/FolderOpenOutlined';
@@ -61,8 +56,6 @@ import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArro
 import PushPinOutlinedIcon          from '@mui/icons-material/PushPinOutlined';
 import StarBorderOutlinedIcon       from '@mui/icons-material/StarBorderOutlined';
 import CloseIcon                    from '@mui/icons-material/Close';
-import KeyboardArrowLeftIcon        from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRightIcon       from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon        from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon          from '@mui/icons-material/KeyboardArrowUp';
 import FeedbackOutlinedIcon         from '@mui/icons-material/FeedbackOutlined';
@@ -115,7 +108,6 @@ const FunctionAppDetail = () => {
   const [loading, setLoading]             = useState(false);
   const [page, setPage]                   = useState(1);
   const ROWS_PER_PAGE                     = 10;
-  const [searchInput, setSearchInput]     = useState('');
   const [navSearch, setNavSearch]         = useState('');
   const [activeNav, setActiveNav]         = useState('overview');
   const [tab, setTab]                     = useState(0);
@@ -152,9 +144,7 @@ const FunctionAppDetail = () => {
     setTimeout(() => setSuccessMsg(''), 4000);
   };
 
-  const filtered = functions.filter(f =>
-    !searchInput || f.name.toLowerCase().includes(searchInput.toLowerCase()) || f.trigger.toLowerCase().includes(searchInput.toLowerCase())
-  );
+  const filtered = functions;
   const totalPages    = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE));
   const paginatedData = filtered.slice((page - 1) * ROWS_PER_PAGE, (page - 1) * ROWS_PER_PAGE + ROWS_PER_PAGE);
 
@@ -256,12 +246,10 @@ const FunctionAppDetail = () => {
                   }}
                 />
               )}
-              <Tooltip title="Collapse" arrow>
-                <span>
-                  <IconButton size="small" disabled sx={{ p: 0.5, flexShrink: 0 }}>
-                    {subNavCollapsed ? <KeyboardDoubleArrowRightIcon fontSize="small" /> : <KeyboardDoubleArrowLeftIcon fontSize="small" />}
-                  </IconButton>
-                </span>
+              <Tooltip title={subNavCollapsed ? 'Expand' : 'Collapse'} arrow>
+                <IconButton size="small" onClick={() => setSubNavCollapsed(c => !c)} sx={{ p: 0.5, flexShrink: 0 }}>
+                  {subNavCollapsed ? <KeyboardDoubleArrowRightIcon fontSize="small" /> : <KeyboardDoubleArrowLeftIcon fontSize="small" />}
+                </IconButton>
               </Tooltip>
             </Box>
 
@@ -411,7 +399,7 @@ const FunctionAppDetail = () => {
                       </Link>
                     }
                   />
-                  <EssRow label="Subscription ID" value="fe4a1fdb-6a1c-4a6d-a6b0-dbb12f6a00f8" />
+                  <EssRow label="Subscription ID" value={group?.subscription_id || '—'} />
                   <EssRow
                     label="Tags (edit)"
                     value={<Link href="#" underline="hover" sx={{ fontSize: 13, color: '#1976d2' }}>Add tags</Link>}
@@ -420,9 +408,9 @@ const FunctionAppDetail = () => {
 
                 {/* Right column */}
                 <Box>
-                  <EssRow label="URL" value="—" />
-                  <EssRow label="App Environment" value="—" />
-                  <EssRow label="Operating System" value="Windows" />
+                  <EssRow label="URL" value={resource?.url || '—'} />
+                  <EssRow label="App Environment" value={resource?.os || '—'} />
+                  <EssRow label="Operating System" value={resource?.os || '—'} />
                   <EssRow label="Runtime version" value={resource?.runtime_version || '—'} />
                 </Box>
               </Box>
@@ -438,7 +426,7 @@ const FunctionAppDetail = () => {
               <Tab label="Functions" />
               <Tab label="Metrics" />
               <Tab label="Properties" />
-              <Tab label={`Notifications (${functions.length === 0 ? 0 : 0})`} />
+              <Tab label="Notifications (0)" />
             </Tabs>
           </Box>
 

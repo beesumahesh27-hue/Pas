@@ -107,7 +107,7 @@ const EssRow = ({ label, value, move, moveHref }) => (
 
 const INVOCATION_COLUMNS = ['Date (UTC)', 'Success', 'Result Code', 'Duration (ms)', 'Operation Id'];
 
-const MonitorPanel = ({ fnName }) => {
+const MonitorPanel = () => {
   const [monitorTab, setMonitorTab]       = useState(0);
   const [filterText, setFilterText]       = useState('');
   const [infoDismissed, setInfoDismissed] = useState(false);
@@ -538,7 +538,7 @@ const FunctionDetail = () => {
                 <Typography sx={{ mt: 2, fontSize: 13, color: 'text.secondary' }}>Loading...</Typography>
               </Box>
             ) : activeNav === 'monitor' ? (
-              <MonitorPanel fnName={fn?.name} />
+              <MonitorPanel />
             ) : (
               <>
                 {/* Essentials */}
@@ -573,9 +573,9 @@ const FunctionDetail = () => {
                         <EssRow
                           label="Application Insights"
                           value={
-                            <Link href="#" underline="hover" sx={{ fontSize: 13, color: '#1976d2' }}>
-                              {resource?.name ? `${resource.name}-insights` : '—'}
-                            </Link>
+                            resource?.url
+                              ? <Link href={resource.url} underline="hover" sx={{ fontSize: 13, color: '#1976d2' }}>{resource.name}</Link>
+                              : '—'
                           }
                         />
                         <EssRow label="Location" value={resource?.location || '—'} />
@@ -588,7 +588,7 @@ const FunctionDetail = () => {
                             </Link>
                           }
                         />
-                        <EssRow label="Subscription ID" value={<Typography sx={{ fontSize: 13, color: 'text.primary', wordBreak: 'break-all' }}>fe4a1fdb-6a1c-4a6d-a6b0-dbb12f6a00f8</Typography>} />
+                        <EssRow label="Subscription ID" value={<Typography sx={{ fontSize: 13, color: 'text.primary', wordBreak: 'break-all' }}>{group?.subscription_id || '—'}</Typography>} />
                       </Box>
 
                       {/* Right column */}
