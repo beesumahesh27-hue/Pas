@@ -192,8 +192,8 @@ const CalendarMain = () => {
         display: 'flex', alignItems: 'center', gap: 1.5,
         px: 3, py: 1.5,
       }}>
-        <CalendarTodayOutlinedIcon sx={{ color: '#1976d2' }} />
-        <Typography sx={{ fontWeight: 700, fontSize: 20, color: '#0a1929' }}>Calendar</Typography>
+        <CalendarTodayOutlinedIcon sx={{ color: 'primary.main' }} />
+        <Typography sx={{ fontWeight: 700, fontSize: 20, color: 'text.primary' }}>Calendar</Typography>
 
         <Box sx={{ flex: 1 }} />
 
@@ -241,13 +241,13 @@ const CalendarMain = () => {
       {/* Body */}
       <Box sx={{ flex: 1, display: 'flex', minHeight: 0 }}>
         {/* Left sidebar */}
-        <Box sx={{ width: 300, bgcolor: '#fff', borderRight: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ width: 300, bgcolor: 'background.paper', borderRight: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column' }}>
           <MiniCalendar selectedDate={anchorDate} onSelect={setAnchorDate} />
 
           <Box sx={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'auto' }}>
             {/* Categories column */}
-            <Box sx={{ flex: 1, p: 1.5, borderRight: '1px solid #f0f0f0' }}>
-              <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.6, mb: 1, height: 18 }}>
+            <Box sx={{ flex: 1, p: 1.5, borderRight: '1px solid', borderColor: 'divider' }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, color: 'text.disabled', textTransform: 'uppercase', letterSpacing: 0.6, mb: 1, height: 18 }}>
                 Categories
               </Typography>
               {categories.map((c) => (
@@ -262,14 +262,14 @@ const CalendarMain = () => {
                       p: 0.5,
                     }}
                   />
-                  <Typography sx={{ fontSize: 13, color: '#374151' }}>{c.label}</Typography>
+                  <Typography sx={{ fontSize: 13, color: 'text.primary' }}>{c.label}</Typography>
                 </Box>
               ))}
             </Box>
 
             {/* Status column — numerical counts, each row parallel to its Category row */}
             <Box sx={{ flex: 1, p: 1.5 }}>
-              <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.6, mb: 1, height: 18 }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, color: 'text.disabled', textTransform: 'uppercase', letterSpacing: 0.6, mb: 1, height: 18 }}>
                 Status
               </Typography>
               {categories.map((c) => {
@@ -284,7 +284,7 @@ const CalendarMain = () => {
                       justifyContent: 'center',
                       borderRadius: 1,
                       borderLeft: `3px solid ${c.color}`,
-                      bgcolor: count ? `${c.color}14` : '#fafafa',
+                      bgcolor: count ? `${c.color}14` : 'action.hover',
                     }}
                   >
                     <Typography

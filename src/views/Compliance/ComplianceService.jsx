@@ -165,7 +165,7 @@ const ComplianceService = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <VerifiedUserOutlinedIcon sx={{ fontSize: 30, color: '#1976d2' }} />
-            <Typography variant="h5" fontWeight={700}>Create Compliance Policy</Typography>
+            <Typography variant="h5" fontWeight={700} sx={{ color: 'text.primary' }}>Create Compliance Policy</Typography>
           </Box>
           <Button
             startIcon={<ArrowBackOutlinedIcon />}

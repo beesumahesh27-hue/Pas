@@ -147,7 +147,7 @@ const ResourceGroupList = () => {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
 
       {/* ── Success / Error banner ── */}
       <Collapse in={Boolean(successMsg)}>
@@ -157,7 +157,7 @@ const ResourceGroupList = () => {
         </Alert>
       </Collapse>
 
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: 3, flex: 1 }}>
 
         {/* ── Breadcrumb ── */}
         <Breadcrumbs separator="›" sx={{ mb: 1.5, fontSize: 13 }}>
@@ -168,7 +168,7 @@ const ResourceGroupList = () => {
         {/* ── Title row ── */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
           <FolderOutlinedIcon sx={{ fontSize: 32, color: '#1976d2', mr: 1.25 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, lineHeight: 1.2 }}>Resource groups</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 600, lineHeight: 1.2, color: 'text.primary' }}>Resource groups</Typography>
         </Box>
         <Typography sx={{ fontSize: 12, color: 'text.secondary', mb: 2.5, ml: 5.25 }}>
           {authUser?.email || authUser?.name || 'Default Directory'}
@@ -203,7 +203,7 @@ const ResourceGroupList = () => {
           </Menu>
         </Box>
 
-        <Divider sx={{ mb: 2.5, borderColor: '#e0e0e0' }} />
+        <Divider sx={{ mb: 2.5 }} />
 
         {/* ── Search + Filter row ── */}
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1.5, flexWrap: 'wrap' }}>
@@ -254,7 +254,7 @@ const ResourceGroupList = () => {
           </Box>
         )}
 
-        <TableContainer component={Paper} sx={{ display: loading ? 'none' : undefined, overflowX: 'auto' }}>
+        <TableContainer component={Paper} sx={{ display: loading ? 'none' : undefined, overflowX: 'auto', '& .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-root': { borderBottom: 0 } }}>
           <Table sx={{ minWidth: 500 }}>
             <TableHead sx={{ bgcolor: (t) => t.palette.mode === 'dark' ? t.palette.grey[800] : '#f5f5f5' }}>
               <TableRow>
@@ -321,27 +321,6 @@ const ResourceGroupList = () => {
           </Table>
         </TableContainer>
 
-        {/* ── Pagination + Feedback ── */}
-        <Box sx={{ display: loading ? 'none' : 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1.5, flexWrap: 'wrap', gap: 1 }}>
-          <PaginationBar
-            page={page}
-            totalPages={totalPages}
-            rowsPerPage={rowsPerPage}
-            rowsPerPageOptions={[5, 10, 25]}
-            onPageChange={setPage}
-            onRowsPerPageChange={(n) => { setRowsPerPage(n); setPage(1); }}
-          />
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<FeedbackOutlinedIcon sx={{ fontSize: 16 }} />}
-            onClick={() => setFeedbackOpen(true)}
-            sx={{ textTransform: 'none', fontSize: 13, borderRadius: 2, px: 2, boxShadow: '0 2px 8px rgba(25,118,210,0.35)' }}
-          >
-            Feedback
-          </Button>
-        </Box>
-
         {/* ── Context menu ── */}
         <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)}
           onClose={() => { setMenuAnchor(null); setMenuRow(null); }}
@@ -353,6 +332,35 @@ const ResourceGroupList = () => {
           </MenuItem>
         </Menu>
 
+      </Box>
+
+      {/* ── Pagination + Feedback pinned to bottom ── */}
+      <Box sx={{
+        display: loading ? 'none' : 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        px: 3,
+        py: 1.5,
+        flexWrap: 'wrap',
+        gap: 1,
+      }}>
+        <PaginationBar
+          page={page}
+          totalPages={totalPages}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[5, 10, 25]}
+          onPageChange={setPage}
+          onRowsPerPageChange={(n) => { setRowsPerPage(n); setPage(1); }}
+        />
+        <Button
+          variant="contained"
+          size="small"
+          startIcon={<FeedbackOutlinedIcon sx={{ fontSize: 16 }} />}
+          onClick={() => setFeedbackOpen(true)}
+          sx={{ textTransform: 'none', fontSize: 13, borderRadius: 2, px: 2, boxShadow: '0 2px 8px rgba(25,118,210,0.35)' }}
+        >
+          Feedback
+        </Button>
       </Box>
 
       <CreateResourceGroup

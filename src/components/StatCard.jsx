@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 const StatCard = ({ label, value, icon, iconBg }) => (
   <Card
     variant="outlined"
-    sx={{ bgcolor: '#fff', height: '100%', borderColor: '#e8e8e8' }}
+    sx={{ bgcolor: 'background.paper', height: '100%' }}
   >
     <CardContent
       sx={{
@@ -18,12 +18,12 @@ const StatCard = ({ label, value, icon, iconBg }) => (
     >
       <Box>
         <Typography
-          sx={{ fontSize: 13, color: '#616161', fontWeight: 400, mb: 0.75 }}
+          sx={{ fontSize: 13, color: 'text.secondary', fontWeight: 400, mb: 0.75 }}
         >
           {label}
         </Typography>
         <Typography
-          sx={{ fontSize: 30, fontWeight: 700, color: '#1a1a1a', lineHeight: 1 }}
+          sx={{ fontSize: 30, fontWeight: 700, color: 'text.primary', lineHeight: 1 }}
         >
           {value}
         </Typography>

@@ -265,7 +265,7 @@ const PlatformList = () => {
         {/* ── Title row ── */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
           <CloudOutlinedIcon sx={{ fontSize: 36, color: '#1976d2', mr: 1.5 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, lineHeight: 1.2 }}>Platform as a Service</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 600, lineHeight: 1.2, color: 'text.primary' }}>Platform as a Service</Typography>
         </Box>
 
         {/* ── Action toolbar ── */}
@@ -281,14 +281,14 @@ const PlatformList = () => {
 
           <Button variant="text" startIcon={<RefreshOutlinedIcon sx={{ fontSize: 17 }} />}
             onClick={handleRefresh}
-            sx={{ textTransform: 'none', color: '#424242', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
+            sx={{ textTransform: 'none', color: 'text.secondary', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
             Refresh
           </Button>
 
           {/* Export */}
           <Button variant="text" startIcon={<FileDownloadOutlinedIcon sx={{ fontSize: 17 }} />}
             onClick={(e) => setExportAnchor(e.currentTarget)}
-            sx={{ textTransform: 'none', color: '#424242', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
+            sx={{ textTransform: 'none', color: 'text.secondary', fontSize: 14, fontWeight: 400, minWidth: 0 }}>
             Export
           </Button>
           <Menu anchorEl={exportAnchor} open={Boolean(exportAnchor)} onClose={() => setExportAnchor(null)}
@@ -300,7 +300,7 @@ const PlatformList = () => {
           {hasActiveFilter && (
             <Button variant="text" startIcon={<FilterAltOffOutlinedIcon sx={{ fontSize: 17 }} />}
               onClick={handleClearFilters}
-              sx={{ textTransform: 'none', color: '#424242', fontSize: 14, fontWeight: 400, minWidth: 0, '&:hover': { color: '#1976d2' } }}>
+              sx={{ textTransform: 'none', color: 'text.secondary', fontSize: 14, fontWeight: 400, minWidth: 0, '&:hover': { color: 'primary.main' } }}>
               Remove Filter
             </Button>
           )}
@@ -320,7 +320,7 @@ const PlatformList = () => {
           </Box>
         </Box>
 
-        <Divider sx={{ mb: 2.5, borderColor: '#e0e0e0' }} />
+        <Divider sx={{ mb: 2.5 }} />
 
         {/* ── Stat cards ── */}
         <Grid container spacing={2.5} sx={{ mb: 3.5 }}>
@@ -366,7 +366,7 @@ const PlatformList = () => {
             sx={{
               textTransform: 'none',
               fontSize: 13,
-              color: statusFilter ? '#1976d2' : '#424242',
+              color: statusFilter ? 'primary.main' : 'text.secondary',
               fontWeight: statusFilter ? 600 : 400,
             }}
           >
@@ -378,7 +378,7 @@ const PlatformList = () => {
             onClose={() => setFilterMenuAnchor(null)}
             PaperProps={{ sx: { minWidth: 200, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', borderRadius: 1 } }}
           >
-            <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#9e9e9e', px: 2, pt: 1, pb: 0.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 600, color: 'text.disabled', px: 2, pt: 1, pb: 0.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Status
             </Typography>
             <MenuItem onClick={() => handleStatusChange2('')} selected={!statusFilter} sx={{ fontSize: 13 }}>
@@ -398,7 +398,7 @@ const PlatformList = () => {
           </Menu>
 
           <Box sx={{ flex: 1 }} />
-          <Typography sx={{ fontSize: 13, color: '#757575', whiteSpace: 'nowrap' }}>
+          <Typography sx={{ fontSize: 13, color: 'text.secondary', whiteSpace: 'nowrap' }}>
             Showing {filteredData.length} of {apiPlatforms.length} Records
           </Typography>
         </Box>
@@ -426,7 +426,7 @@ const PlatformList = () => {
             </TableHead>
             <TableBody>
               {paginatedData.length > 0 ? paginatedData.map((row) => (
-                <TableRow key={row.pas_id} hover sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#f9f9f9' }, '& .action-icon': { opacity: 0, transition: 'opacity 0.15s' }, '&:hover .action-icon': { opacity: 1 } }}
+                <TableRow key={row.pas_id} hover sx={{ cursor: 'pointer', '& .action-icon': { opacity: 0, transition: 'opacity 0.15s' }, '&:hover .action-icon': { opacity: 1 } }}
                   onClick={() => handleRowClick(row)}>
                   <TableCell><Link underline="hover" sx={{ fontWeight: 500, color: 'primary.main' }}>{row.pas_name}</Link></TableCell>
                   <TableCell><Chip label={row.status} color={getStatusColor(row.status)} size="small" variant="outlined" /></TableCell>
@@ -442,7 +442,7 @@ const PlatformList = () => {
                       <IconButton className="action-icon" size="small"
                         onClick={(e) => handleMenuOpen(e, row)}
                         style={{ opacity: menuRow?.pas_id === row.pas_id ? 1 : undefined }}
-                        sx={{ color: '#757575', '&:hover': { color: '#1976d2', bgcolor: '#e3f2fd' } }}>
+                        sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main', bgcolor: (t) => t.palette.mode === 'dark' ? t.palette.grey[700] : '#e3f2fd' } }}>
                         <MoreVertIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>

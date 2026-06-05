@@ -3,9 +3,11 @@ import {
   Box,
   IconButton,
   Link,
+  Paper,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Tooltip,
@@ -30,34 +32,27 @@ export const VM_COLUMNS = [
 ];
 
 const VMDataTable = ({ rows = [], onCreateClick, onRowClick, onActionClick, emptyLabel }) => (
-  <Box sx={{ overflowX: 'auto', width: '100%' }}>
+  <TableContainer component={Paper} sx={{ overflowX: 'auto', width: '100%' }}>
     <Table size="small" sx={{ minWidth: 1100, borderCollapse: 'collapse' }}>
-      <TableHead>
+      <TableHead sx={{ bgcolor: (t) => t.palette.mode === 'dark' ? t.palette.grey[800] : '#f5f5f5' }}>
         <TableRow>
           {VM_COLUMNS.map((col) => (
             <TableCell
               key={col.key}
               sx={{
-                fontWeight: 600, fontSize: 13, color: '#424242',
+                fontWeight: 700, fontSize: 13,
                 py: 1.5, px: 1.5,
                 whiteSpace: col.wrap ? 'normal' : 'nowrap',
-                borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0',
-                bgcolor: 'transparent', lineHeight: 1.3,
+                lineHeight: 1.3,
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
                 {col.label}
-                <UnfoldMoreIcon sx={{ fontSize: 14, color: '#bdbdbd', flexShrink: 0, mt: col.wrap ? 'auto' : 0 }} />
+                <UnfoldMoreIcon sx={{ fontSize: 14, color: 'text.disabled', flexShrink: 0, mt: col.wrap ? 'auto' : 0 }} />
               </Box>
             </TableCell>
           ))}
-          <TableCell
-            sx={{
-              fontWeight: 600, fontSize: 13, color: '#424242',
-              py: 1.5, px: 1.5, whiteSpace: 'nowrap',
-              borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0',
-            }}
-          >
+          <TableCell sx={{ fontWeight: 700, fontSize: 13, py: 1.5, px: 1.5, whiteSpace: 'nowrap' }}>
             Actions
           </TableCell>
         </TableRow>
@@ -67,14 +62,14 @@ const VMDataTable = ({ rows = [], onCreateClick, onRowClick, onActionClick, empt
         {rows.length === 0 ? (
           <TableRow sx={{ '&:hover': { bgcolor: 'transparent' } }}>
             <TableCell colSpan={VM_COLUMNS.length + 1} align="center" sx={{ border: 0, py: 12 }}>
-              <Typography sx={{ fontSize: 14, color: '#757575', mb: 1 }}>
+              <Typography sx={{ fontSize: 14, color: 'text.secondary', mb: 1 }}>
                 {emptyLabel || 'No records found.'}
               </Typography>
               <Link
                 component="button"
                 underline="none"
                 onClick={onCreateClick}
-                sx={{ color: '#1976d2', fontSize: 14, fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 0.25, cursor: 'pointer' }}
+                sx={{ color: 'primary.main', fontSize: 14, fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 0.25, cursor: 'pointer' }}
               >
                 + Create
               </Link>
@@ -86,12 +81,12 @@ const VMDataTable = ({ rows = [], onCreateClick, onRowClick, onActionClick, empt
               key={row.id ?? idx}
               hover
               onClick={() => onRowClick && onRowClick(row)}
-              sx={{ '&:hover': { bgcolor: '#f5f5f5' }, cursor: onRowClick ? 'pointer' : 'default' }}
+              sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
             >
               {VM_COLUMNS.map((col) => (
-                <TableCell key={col.key} sx={{ fontSize: 13, px: 1.5, color: '#212121', borderBottom: '1px solid #f0f0f0' }}>
+                <TableCell key={col.key} sx={{ fontSize: 13, px: 1.5, color: 'text.primary' }}>
                   {col.key === 'vmName' ? (
-                    <Typography component="span" sx={{ fontSize: 13, color: '#1976d2', fontWeight: 500, cursor: 'pointer' }}>
+                    <Typography component="span" sx={{ fontSize: 13, color: 'primary.main', fontWeight: 500, cursor: 'pointer' }}>
                       {row[col.key] ?? '—'}
                     </Typography>
                   ) : (
@@ -99,12 +94,12 @@ const VMDataTable = ({ rows = [], onCreateClick, onRowClick, onActionClick, empt
                   )}
                 </TableCell>
               ))}
-              <TableCell sx={{ px: 1.5, borderBottom: '1px solid #f0f0f0' }}>
+              <TableCell sx={{ px: 1.5 }}>
                 <Tooltip title="Actions" placement="top" arrow>
                   <IconButton
                     size="small"
-                    onClick={(e) => onActionClick && onActionClick(e, row)}
-                    sx={{ color: '#757575', '&:hover': { color: '#1976d2' } }}
+                    onClick={(e) => { e.stopPropagation(); onActionClick && onActionClick(e, row); }}
+                    sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main', bgcolor: (t) => t.palette.mode === 'dark' ? t.palette.grey[700] : '#e3f2fd' } }}
                   >
                     <MoreVertIcon sx={{ fontSize: 18 }} />
                   </IconButton>
@@ -115,7 +110,7 @@ const VMDataTable = ({ rows = [], onCreateClick, onRowClick, onActionClick, empt
         )}
       </TableBody>
     </Table>
-  </Box>
+  </TableContainer>
 );
 
 export default VMDataTable;
