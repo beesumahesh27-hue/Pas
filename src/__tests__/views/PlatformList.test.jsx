@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import axios from 'axios';
@@ -33,13 +33,17 @@ const renderPlatformList = () =>
   );
 
 describe('PlatformList', () => {
-  it('renders without crashing', () => {
+  it('renders without crashing', async () => {
     renderPlatformList();
-    expect(screen.getAllByText('Platform as a Service').length).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(screen.getByText('Platform as a Service')).toBeInTheDocument();
+    });
   });
 
-  it('shows the Create Platform button', () => {
+  it('shows the Create Platform button', async () => {
     renderPlatformList();
-    expect(screen.getByText('Create Platform')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Create Platform')).toBeInTheDocument();
+    });
   });
 });
