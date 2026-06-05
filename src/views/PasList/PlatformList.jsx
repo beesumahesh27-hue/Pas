@@ -50,6 +50,7 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import LocationOnOutlinedIcon   from '@mui/icons-material/LocationOnOutlined';
 
 import api from '../../services/api';
+import PaginationBar from '../../components/PaginationBar';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import CreatePas      from './PasActions/CreatePas';
@@ -68,7 +69,7 @@ const LOCATION_KEY = 'pas_current_location';
 const PlatformList = () => {
   const navigate = useNavigate();
 
-  const [page, setPage]               = useState(0);
+  const [page, setPage]               = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchValue, setSearchValue] = useState(''); // eslint-disable-line no-unused-vars
   const [statusFilter, setStatusFilter] = useState('');
@@ -138,10 +139,8 @@ const PlatformList = () => {
   const filteredData = apiPlatforms;
 
   const hasActiveFilter = Boolean(searchInput || statusFilter);
-  const paginatedData   = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-  const handleChangePage     = (_, v) => setPage(v);
-  const handleChangeRowsPage = (e)    => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
+  const totalPages      = Math.max(1, Math.ceil(filteredData.length / rowsPerPage));
+  const paginatedData   = filteredData.slice((page - 1) * rowsPerPage, page * rowsPerPage);
   const handleClearFilters   = ()     => { setSearchValue(''); setSearchInput(''); setStatusFilter(''); setPage(0); fetchPlatforms('', ''); };
   const handleRefresh        = ()     => { setSearchValue(''); setSearchInput(''); setStatusFilter(''); setPage(0); fetchPlatforms('', ''); };
   const handleStatusChange2  = (val)  => { setStatusFilter(val); setPage(0); setFilterMenuAnchor(null); fetchPlatforms(searchInput, val); };
@@ -454,10 +453,12 @@ const PlatformList = () => {
 
         {/* ── Pagination ── */}
         <Box sx={{ display: apiLoading ? 'none' : 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
-          <TablePagination component="div" rowsPerPageOptions={[5, 10, 25]}
-            count={filteredData.length} rowsPerPage={rowsPerPage} page={page}
-            onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPage}
-            sx={{ '& .MuiToolbar-root': { pl: 0 } }} />
+          <PaginationBar
+            page={page} totalPages={totalPages}
+            rowsPerPage={rowsPerPage} rowsPerPageOptions={[5, 10, 25]}
+            onPageChange={setPage}
+            onRowsPerPageChange={(n) => { setRowsPerPage(n); setPage(1); }}
+          />
           <Button variant="contained" color="primary" size="small"
             startIcon={<FeedbackOutlinedIcon />}
             onClick={() => setFeedbackOpen(true)}
